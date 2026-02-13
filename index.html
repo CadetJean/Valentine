@@ -85,13 +85,13 @@
         .calendar-btn {
             display: inline-block;
             margin-top: 20px;
-            padding: 10px 20px;
+            padding: 12px 24px;
             background-color: #ff4d6d;
             color: white;
             text-decoration: none;
             border-radius: 50px;
             font-weight: bold;
-            font-size: 0.9rem;
+            font-size: 1rem;
             box-shadow: 0 4px 10px rgba(255, 77, 109, 0.3);
         }
     </style>
@@ -141,14 +141,16 @@
         }
 
         function accepted() {
-            // Calendar link for Feb 14, 2026
-            const calendarLink = "https://www.google.com/calendar/render?action=TEMPLATE&text=Valentine's+Date+with+Jean&dates=20260214T230000Z/20260215T020000Z&details=I+love+you+Halle!+See+you+soon.";
+            // Updated calendar details for dinner at Jean's place
+            const eventTitle = encodeURIComponent("Valentine's Dinner at Jean's");
+            const eventDetails = encodeURIComponent("Menu: Pasta & Wine 🍝🍷\nEvening Plans: S'mores & relaxing! 🔥");
+            const calendarLink = `https://www.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=20260214T233000Z/20260215T030000Z&details=${eventDetails}&location=Jean's+Place`;
             
             document.getElementById('valentineCard').innerHTML = `
-                <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpndWp3emx0bmZ6amZ6amZ6amZ6amZ6amZ6amZ6amZ6amZ6amZ6JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/fXmO2uAnG2S01jG92W/giphy.gif" class="dog-gif">
-                <h1 style="color: #ff4d6d;">Correct Choice, Halle!</h1>
-                <p>I love you! ❤️</p>
-                <a href="${calendarLink}" target="_blank" class="calendar-btn">📅 Add Date to Calendar</a>
+                <div style="font-size: 60px;">🍝🍷✨</div>
+                <h1 style="color: #ff4d6d;">It's a Date, Halle!</h1>
+                <p>Can't wait to make you pasta and s'mores! ❤️</p>
+                <a href="${calendarLink}" target="_blank" class="calendar-btn">📅 Add Dinner to Calendar</a>
                 <div style="font-size: 12px; margin-top: 20px; color: #ffb3c1;">From Jean Cadet</div>
             `;
             document.body.style.backgroundColor = "#ffc1cf";
