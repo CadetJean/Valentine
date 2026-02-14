@@ -25,6 +25,7 @@
             box-shadow: 0 10px 25px rgba(255, 133, 162, 0.3);
             z-index: 10;
             position: relative;
+            max-width: 600px;
         }
 
         .bg-heart {
@@ -94,6 +95,128 @@
             font-size: 1rem;
             box-shadow: 0 4px 10px rgba(255, 77, 109, 0.3);
         }
+
+        .love-message {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: #ffe6f0;
+            border-radius: 15px;
+            border: 2px solid #ffb3c1;
+            color: #ff4d6d;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            text-align: left;
+        }
+
+        .message-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            text-align: center;
+            color: #ff4d6d;
+        }
+
+        /* Flower Animation Styles */
+        .flower {
+            position: absolute;
+            bottom: 0;
+            z-index: 5;
+            animation: grow 3s ease-out forwards;
+        }
+
+        .stem {
+            width: 4px;
+            background: linear-gradient(to top, #90EE90, #228B22);
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            height: 0;
+            animation: growStem 2s ease-out forwards;
+        }
+
+        .flower-head {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            animation: bloomFlower 1.5s ease-out 2s forwards;
+        }
+
+        .petal {
+            position: absolute;
+            width: 30px;
+            height: 40px;
+            background: radial-gradient(ellipse at center, #ff85a2, #ff4d6d);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            transform-origin: center bottom;
+        }
+
+        .petal:nth-child(1) { transform: rotate(0deg) translateY(-20px); }
+        .petal:nth-child(2) { transform: rotate(72deg) translateY(-20px); }
+        .petal:nth-child(3) { transform: rotate(144deg) translateY(-20px); }
+        .petal:nth-child(4) { transform: rotate(216deg) translateY(-20px); }
+        .petal:nth-child(5) { transform: rotate(288deg) translateY(-20px); }
+
+        .center {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #FFD700, #FFA500);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .leaf {
+            position: absolute;
+            width: 25px;
+            height: 15px;
+            background: #90EE90;
+            border-radius: 0 50% 50% 0;
+            opacity: 0;
+        }
+
+        .leaf-left {
+            left: -15px;
+            animation: growLeaf 0.8s ease-out 1.5s forwards;
+            transform-origin: right center;
+        }
+
+        .leaf-right {
+            right: -15px;
+            animation: growLeaf 0.8s ease-out 1.7s forwards;
+            transform-origin: left center;
+            transform: scaleX(-1);
+        }
+
+        @keyframes growStem {
+            from { height: 0; }
+            to { height: 150px; }
+        }
+
+        @keyframes bloomFlower {
+            from { 
+                transform: translateX(-50%) scale(0) rotate(0deg);
+                bottom: 0;
+            }
+            to { 
+                transform: translateX(-50%) scale(1) rotate(360deg);
+                bottom: 150px;
+            }
+        }
+
+        @keyframes growLeaf {
+            from { 
+                opacity: 0;
+                transform: scaleX(0);
+            }
+            to { 
+                opacity: 1;
+                transform: scaleX(1);
+            }
+        }
     </style>
 </head>
 <body>
@@ -139,6 +262,47 @@
             setTimeout(() => heart.remove(), 5000);
         }
 
+        function createFlower() {
+            const positions = [15, 30, 70, 85];
+            positions.forEach((pos, index) => {
+                setTimeout(() => {
+                    const flower = document.createElement('div');
+                    flower.className = 'flower';
+                    flower.style.left = pos + '%';
+                    
+                    const stem = document.createElement('div');
+                    stem.className = 'stem';
+                    
+                    const flowerHead = document.createElement('div');
+                    flowerHead.className = 'flower-head';
+                    
+                    for (let i = 0; i < 5; i++) {
+                        const petal = document.createElement('div');
+                        petal.className = 'petal';
+                        flowerHead.appendChild(petal);
+                    }
+                    
+                    const center = document.createElement('div');
+                    center.className = 'center';
+                    flowerHead.appendChild(center);
+                    
+                    const leafLeft = document.createElement('div');
+                    leafLeft.className = 'leaf leaf-left';
+                    leafLeft.style.top = '60px';
+                    stem.appendChild(leafLeft);
+                    
+                    const leafRight = document.createElement('div');
+                    leafRight.className = 'leaf leaf-right';
+                    leafRight.style.top = '90px';
+                    stem.appendChild(leafRight);
+                    
+                    flower.appendChild(stem);
+                    flower.appendChild(flowerHead);
+                    document.body.appendChild(flower);
+                }, index * 500);
+            });
+        }
+
         function accepted() {
             // Updated calendar details for dinner at Jean's place
             const eventTitle = encodeURIComponent("Valentine's Dinner at Jean's");
@@ -150,10 +314,17 @@
                 <h1 style="color: #ff4d6d;">It's a Date, Halle!</h1>
                 <p>Can't wait to make you pasta and s'mores! ❤️</p>
                 <a href="${calendarLink}" target="_blank" class="calendar-btn">📅 Add Dinner to Calendar</a>
+                
+                <div class="love-message">
+                    <div class="message-title">"Every day with you is my favorite adventure"</div>
+                    This means that life with you isn't just a routine, but a constant journey full of discovery and joy. It implies that no matter where we are or what we are doing—whether we're out on a trip or just relaxing at home—being by your side is what makes the experience meaningful. It frames our relationship as an ongoing story where the best parts are the moments we share together, making even the simplest days feel like a special destination.
+                </div>
+                
                 <div style="font-size: 12px; margin-top: 20px; color: #ffb3c1;">From Jean Cadet</div>
             `;
             document.body.style.backgroundColor = "#ffc1cf";
             setInterval(createHeart, 150);
+            createFlower(); // Trigger flower animation
         }
 
         setInterval(() => {
