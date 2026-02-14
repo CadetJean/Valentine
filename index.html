@@ -27,11 +27,10 @@
         }
 
         .card {
-            background: #fff0f5;
+            background: transparent;
             padding: clamp(20px, 5vw, 40px);
             border-radius: 30px;
-            border: 4px solid #ff85a2;
-            box-shadow: 0 10px 25px rgba(255, 133, 162, 0.3);
+            border: none;
             z-index: 10;
             position: relative;
             max-width: 100%;
@@ -67,8 +66,6 @@
             align-items: center;
             gap: 15px;
             flex-wrap: wrap;
-            position: relative;
-            min-height: 100px;
         }
 
         button {
@@ -91,17 +88,11 @@
         #yesBtn { 
             background-color: #ff4d6d; 
             color: white;
-            position: relative;
-            z-index: 100;
         }
         
         #noBtn { 
             background-color: #ff4d6d; 
             color: white;
-            position: absolute;
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            z-index: 50;
-            right: 0;
         }
 
         .confetti {
@@ -237,9 +228,9 @@
         <h1>Halle, will you be my Valentine?</h1>
         <canvas id="particleCanvas"></canvas>
         <div class="love-text" id="loveText">I love you Halle ❤️</div>
-        <div class="btn-group" id="btnGroup">
+        <div class="btn-group">
             <button id="yesBtn" onclick="accepted()">YES</button>
-            <button id="noBtn" onmouseenter="runAway(event)" ontouchstart="runAwayTouch(event)">NO</button>
+            <button id="noBtn" onclick="denied()">NO</button>
         </div>
     </div>
 
@@ -253,7 +244,6 @@
         let noClickCount = 0;
         const noBtn = document.getElementById('noBtn');
         const yesBtn = document.getElementById('yesBtn');
-        const btnGroup = document.getElementById('btnGroup');
         
         const errorMessages = [
             "Halle, error 404: 'No' not found.",
@@ -263,62 +253,13 @@
             "Access Denied. Did you mean to click 'Yes'?"
         ];
 
-        // Make NO button run away from mouse
-        function runAway(event) {
-            const yesBtnRect = yesBtn.getBoundingClientRect();
-            const noBtnRect = noBtn.getBoundingClientRect();
-            const groupRect = btnGroup.getBoundingClientRect();
-            
-            // Calculate available space
-            const maxX = groupRect.width - noBtnRect.width;
-            const maxY = groupRect.height - noBtnRect.height;
-            
-            // Calculate YES button's position relative to the group
-            const yesRelativeLeft = yesBtnRect.left - groupRect.left;
-            const yesRelativeTop = yesBtnRect.top - groupRect.top;
-            
-            let attempts = 0;
-            let newX, newY;
-            let tooClose = true;
-            
-            // Keep trying until we find a position that doesn't overlap with YES button
-            while (tooClose && attempts < 20) {
-                newX = Math.random() * maxX;
-                newY = Math.random() * maxY;
-                
-                // Check if the new position would overlap with YES button
-                const horizontalOverlap = !(newX > yesRelativeLeft + yesBtnRect.width + 10 || 
-                                           newX + noBtnRect.width < yesRelativeLeft - 10);
-                const verticalOverlap = !(newY > yesRelativeTop + yesBtnRect.height + 10 || 
-                                         newY + noBtnRect.height < yesRelativeTop - 10);
-                
-                tooClose = horizontalOverlap && verticalOverlap;
-                attempts++;
-            }
-            
-            // If we couldn't find a good spot, place it far away from YES
-            if (tooClose) {
-                if (yesRelativeLeft < groupRect.width / 2) {
-                    newX = Math.max(yesRelativeLeft + yesBtnRect.width + 50, maxX - 50);
-                } else {
-                    newX = Math.max(0, yesRelativeLeft - noBtnRect.width - 50);
-                }
-                newY = Math.random() * maxY;
-            }
-            
-            noBtn.style.left = newX + 'px';
-            noBtn.style.top = newY + 'px';
-            
-            // Grow YES button
+        function denied() {
+            alert(errorMessages[noClickCount % errorMessages.length]);
+            noBtn.innerText = "Invalid ❌";
             let currentSize = parseFloat(window.getComputedStyle(yesBtn).fontSize);
-            yesBtn.style.fontSize = (currentSize + 5) + "px";
-            yesBtn.style.padding = (parseFloat(window.getComputedStyle(yesBtn).padding) + 4) + "px";
-        }
-
-        // For touch devices
-        function runAwayTouch(event) {
-            event.preventDefault();
-            runAway(event);
+            yesBtn.style.fontSize = (currentSize + 10) + "px";
+            yesBtn.style.padding = (parseFloat(window.getComputedStyle(yesBtn).padding) + 8) + "px";
+            noClickCount++;
         }
 
         // Particle Heart Animation
@@ -492,12 +433,6 @@
         }
 
         animateParticles();
-
-        function denied() {
-            alert(errorMessages[noClickCount % errorMessages.length]);
-            noBtn.innerText = "Invalid ❌";
-            noClickCount++;
-        }
 
         function createHeart() {
             const heart = document.createElement('div');
