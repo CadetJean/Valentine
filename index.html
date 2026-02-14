@@ -166,7 +166,6 @@
             font-style: italic;
         }
 
-        /* Particle Heart Canvas */
         #particleCanvas {
             margin: 15px auto;
             display: block;
@@ -197,7 +196,6 @@
             to { opacity: 1; }
         }
 
-        /* Heartbeat Monitor */
         .heartbeat-container {
             position: fixed;
             bottom: 0;
@@ -227,7 +225,6 @@
             font-family: 'Courier New', monospace;
         }
 
-        /* iPhone 15 Pro specific adjustments */
         @supports (padding: max(0px)) {
             body {
                 padding-left: max(20px, env(safe-area-inset-left));
@@ -244,6 +241,10 @@
 </head>
 <body>
 
+    <audio id="viva-audio" loop>
+        <source src="VivaLaVida.m4a" type="audio/mp4">
+    </audio>
+
     <div class="card" id="valentineCard">
         <h1>Halle, will you be my Valentine?</h1>
         <canvas id="particleCanvas"></canvas>
@@ -255,7 +256,6 @@
     </div>
 
     <script>
-        // Set canvas size based on device
         const canvas = document.getElementById('particleCanvas');
         const isMobile = window.innerWidth < 768;
         canvas.width = Math.min(400, window.innerWidth - 80);
@@ -282,30 +282,23 @@
             noClickCount++;
         }
 
-        // Particle Heart Animation
         const ctx = canvas.getContext('2d');
         const particles = [];
         const heartPositions = [];
-        let rotationX = 0; // Rotation around X-axis (vertical flip)
-        let rotationY = 0; // Rotation around Y-axis (horizontal flip)
+        let rotationX = 0;
+        let rotationY = 0;
         
-        // Function to check if a point is inside the heart shape
         function isInsideHeart(x, y, centerX, centerY, scale) {
-            // Normalize coordinates
             const nx = (x - centerX) / scale;
             const ny = (y - centerY + (isMobile ? 10 : 20)) / scale;
-            
-            // Heart equation: (x^2 + y^2 - 1)^3 - x^2*y^3 <= 0
             const eq = Math.pow(nx * nx + ny * ny - 1, 3) - nx * nx * ny * ny * ny;
             return eq <= 0;
         }
         
-        // Generate heart shape positions - both outline and filled
         const scale = isMobile ? 6 : 8;
         const centerX = canvas.width / 2;
         const centerY = canvas.height / 2;
         
-        // Generate outline particles
         for (let t = 0; t < 2 * Math.PI; t += 0.05) {
             const x = 16 * Math.pow(Math.sin(t), 3);
             const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
@@ -316,12 +309,10 @@
             });
         }
         
-        // Generate filled particles
         const gridSize = 8;
         for (let x = centerX - 140; x < centerX + 140; x += gridSize) {
             for (let y = centerY - 140; y < centerY + 60; y += gridSize) {
                 if (isInsideHeart(x, y, centerX, centerY, scale)) {
-                    // Convert to relative coordinates
                     heartPositions.push({
                         x: (x - centerX) + Math.random() * gridSize,
                         y: (y - centerY) + Math.random() * gridSize,
@@ -354,59 +345,40 @@
                     this.elapsed += deltaTime;
                     return;
                 }
-
                 const progress = Math.min((this.elapsed - this.delay) / this.duration, 1);
                 const easeProgress = 1 - Math.pow(1 - progress, 3);
-                
-                // Calculate position based on progress
                 const tempY = this.startY + (this.targetY - this.startY) * easeProgress;
                 const tempX = this.x + (this.targetX - this.x) * easeProgress * 0.1;
-                
-                // Apply 3D rotation
                 const relX = this.targetX;
                 const relY = this.targetY;
                 const relZ = this.targetZ;
-                
-                // Rotation around Y-axis (left-right flip)
                 const cosY = Math.cos(rotationY);
                 const sinY = Math.sin(rotationY);
                 const rotatedX = relX * cosY - relZ * sinY;
                 const rotatedZ1 = relX * sinY + relZ * cosY;
-                
-                // Rotation around X-axis (up-down flip)
                 const cosX = Math.cos(rotationX);
                 const sinX = Math.sin(rotationX);
                 const rotatedY = relY * cosX - rotatedZ1 * sinX;
                 const rotatedZ2 = relY * sinX + rotatedZ1 * cosX;
-                
-                // Apply perspective (simple perspective projection)
                 const perspective = 300;
                 const scale = perspective / (perspective + rotatedZ2);
-                
                 this.currentX = centerX + rotatedX * scale;
                 this.currentY = centerY + rotatedY * scale;
                 this.currentScale = scale;
-                
-                // Blend between rising animation and final rotated position
                 if (progress < 1) {
                     this.currentX = tempX + (this.currentX - tempX) * progress;
                     this.currentY = tempY + (this.currentY - tempY) * progress;
                 }
-                
                 this.elapsed += deltaTime;
             }
 
             draw() {
                 if (this.elapsed < this.delay) return;
-                
                 const drawSize = this.size * (this.currentScale || 1);
-                
                 ctx.beginPath();
                 ctx.arc(this.currentX, this.currentY, drawSize, 0, Math.PI * 2);
                 ctx.fillStyle = this.color;
                 ctx.fill();
-                
-                // Glow effect
                 ctx.shadowBlur = 8 * (this.currentScale || 1);
                 ctx.shadowColor = this.color;
                 ctx.fill();
@@ -414,41 +386,32 @@
             }
         }
 
-        // Create particles
         heartPositions.forEach((pos, i) => {
             particles.push(new Particle(pos.x, pos.y, pos.z, i * 5));
         });
 
         let lastTime = Date.now();
-        let rotationSpeedX = 0.0015; // Rotation speed around X-axis
-        let rotationSpeedY = 0.0012; // Rotation speed around Y-axis
-        let targetRotationSpeedX = 0.0006; // Slower speed after filling
-        let targetRotationSpeedY = 0.0005; // Slower speed after filling
+        let rotationSpeedX = 0.0015;
+        let rotationSpeedY = 0.0012;
+        let targetRotationSpeedX = 0.0006;
+        let targetRotationSpeedY = 0.0005;
 
         function animateParticles() {
             const currentTime = Date.now();
             const deltaTime = currentTime - lastTime;
             lastTime = currentTime;
-
-            // Check if all particles have reached their targets
             const allParticlesSettled = particles.every(p => p.elapsed >= p.delay + p.duration);
-            
-            // Gradually slow down rotation after particles settle
             if (allParticlesSettled) {
                 rotationSpeedX += (targetRotationSpeedX - rotationSpeedX) * 0.02;
                 rotationSpeedY += (targetRotationSpeedY - rotationSpeedY) * 0.02;
             }
-            
             rotationX += rotationSpeedX * deltaTime;
             rotationY += rotationSpeedY * deltaTime;
-
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
             particles.forEach(particle => {
                 particle.update(deltaTime);
                 particle.draw();
             });
-
             requestAnimationFrame(animateParticles);
         }
 
@@ -465,91 +428,62 @@
         }
 
         function createHeartbeatMonitor() {
-            // Create heartbeat monitor container
             const container = document.createElement('div');
             container.className = 'heartbeat-container';
-            
             const heartbeatCanvas = document.createElement('canvas');
             heartbeatCanvas.id = 'heartbeatCanvas';
             heartbeatCanvas.width = window.innerWidth;
             heartbeatCanvas.height = 200;
-            
             const heartbeatText = document.createElement('div');
             heartbeatText.className = 'heartbeat-text';
             heartbeatText.innerHTML = '♥ 120 BPM';
-            
             container.appendChild(heartbeatCanvas);
             document.body.appendChild(container);
             document.body.appendChild(heartbeatText);
-            
-            // Generate heart shape points for EKG to follow
             const ekgHeartPoints = [];
             for (let t = 0; t < 2 * Math.PI; t += 0.02) {
                 const x = 16 * Math.pow(Math.sin(t), 3);
                 const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
                 ekgHeartPoints.push({ x, y });
             }
-            
-            // Animate heartbeat line following heart shape
             const hbCtx = heartbeatCanvas.getContext('2d');
             let progress = 0;
             let heartIndex = 0;
-            
             function drawHeartbeat() {
                 hbCtx.clearRect(0, 0, heartbeatCanvas.width, heartbeatCanvas.height);
-                
                 const centerX = heartbeatCanvas.width / 2;
                 const centerY = heartbeatCanvas.height / 2 + 20;
                 const heartScale = 4;
-                
-                // Draw the EKG line forming a heart shape
                 hbCtx.strokeStyle = '#ff4d6d';
                 hbCtx.lineWidth = 3;
                 hbCtx.beginPath();
-                
-                // Draw heart outline with EKG style
                 for (let i = 0; i < ekgHeartPoints.length; i++) {
                     const point = ekgHeartPoints[i];
                     const x = centerX + point.x * heartScale;
                     const y = centerY + point.y * heartScale;
-                    
-                    // Add EKG-style variations to the line
                     const ekgVariation = Math.sin(i * 0.5 + progress) * 2;
-                    
-                    if (i === 0) {
-                        hbCtx.moveTo(x, y + ekgVariation);
-                    } else {
-                        // Add sharp peaks for EKG effect at certain intervals
+                    if (i === 0) hbCtx.moveTo(x, y + ekgVariation);
+                    else {
                         if (i % 20 === 0) {
-                            const peakHeight = 15;
                             hbCtx.lineTo(x - 3, y);
-                            hbCtx.lineTo(x, y - peakHeight);
+                            hbCtx.lineTo(x, y - 15);
                             hbCtx.lineTo(x + 3, y);
                         } else if (i % 10 === 0) {
-                            const smallPeakHeight = 8;
                             hbCtx.lineTo(x - 2, y);
-                            hbCtx.lineTo(x, y - smallPeakHeight);
+                            hbCtx.lineTo(x, y - 8);
                             hbCtx.lineTo(x + 2, y);
-                        } else {
-                            hbCtx.lineTo(x, y + ekgVariation);
-                        }
+                        } else hbCtx.lineTo(x, y + ekgVariation);
                     }
                 }
-                
                 hbCtx.closePath();
                 hbCtx.stroke();
-                
-                // Glow effect
                 hbCtx.shadowBlur = 15;
                 hbCtx.shadowColor = '#ff4d6d';
                 hbCtx.stroke();
                 hbCtx.shadowBlur = 0;
-                
-                // Animated tracing effect - draw a moving bright spot
                 const currentPoint = ekgHeartPoints[heartIndex];
                 const spotX = centerX + currentPoint.x * heartScale;
                 const spotY = centerY + currentPoint.y * heartScale;
-                
                 hbCtx.beginPath();
                 hbCtx.arc(spotX, spotY, 5, 0, Math.PI * 2);
                 hbCtx.fillStyle = '#ff1744';
@@ -557,17 +491,17 @@
                 hbCtx.shadowColor = '#ff1744';
                 hbCtx.fill();
                 hbCtx.shadowBlur = 0;
-                
                 progress += 0.05;
                 heartIndex = (heartIndex + 1) % ekgHeartPoints.length;
-                
                 requestAnimationFrame(drawHeartbeat);
             }
-            
             drawHeartbeat();
         }
 
         function accepted() {
+            // Play Music
+            document.getElementById('viva-audio').play();
+
             const eventTitle = encodeURIComponent("Valentine's Dinner at Jean's");
             const eventDetails = encodeURIComponent("Menu: Pasta & Wine 🍝🍷\nEvening Plans: S'mores & relaxing! 🔥");
             const calendarLink = `https://www.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=20260214T233000Z/20260215T030000Z&details=${eventDetails}&location=Jean's+Place`;
@@ -577,11 +511,10 @@
                 <h1 style="color: #ff4d6d;">It's a Date, Halle!</h1>
                 <div class="love-text-after">I love you Halle ❤️</div>
                 <a href="${calendarLink}" target="_blank" class="calendar-btn">📅 Add Dinner to Calendar</a>
-                
                 <div class="love-message">
                     <div class="message-to">To: Halle</div>
                     <div class="message-title">"Every day with you is my favorite adventure"</div>
-                    This means that life with you isn't just a routine, but a constant journey full of discovery and joy. It implies that no matter where we are or what we are doing, whether we're out on a trip or just relaxing at home, being by your side is what makes the experience meaningful. It frames our relationship as an ongoing story where the best parts are the moments we share together, making even the simplest days feel like a special destination.
+                    This means that life with you isn't just a routine, but a constant journey full of discovery and joy. It frames our relationship as an ongoing story where the best parts are the moments we share together.
                     <div class="message-from">From: Jean Cadet</div>
                 </div>
             `;
@@ -601,13 +534,10 @@
             setTimeout(() => bh.remove(), 6000);
         }, 500);
 
-        // Prevent zoom on double tap
         let lastTouchEnd = 0;
         document.addEventListener('touchend', function (event) {
             const now = (new Date()).getTime();
-            if (now - lastTouchEnd <= 300) {
-                event.preventDefault();
-            }
+            if (now - lastTouchEnd <= 300) event.preventDefault();
             lastTouchEnd = now;
         }, false);
     </script>
