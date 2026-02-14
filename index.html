@@ -188,9 +188,7 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 150px;
-            background: rgba(255, 240, 245, 0.9);
-            border-top: 2px solid #ff85a2;
+            height: 200px;
             z-index: 5;
             pointer-events: none;
             display: flex;
@@ -497,7 +495,7 @@
             const heartbeatCanvas = document.createElement('canvas');
             heartbeatCanvas.id = 'heartbeatCanvas';
             heartbeatCanvas.width = window.innerWidth;
-            heartbeatCanvas.height = 150;
+            heartbeatCanvas.height = 200;
             
             const heartbeatText = document.createElement('div');
             heartbeatText.className = 'heartbeat-text';
@@ -507,85 +505,84 @@
             document.body.appendChild(container);
             document.body.appendChild(heartbeatText);
             
-            // Animate heartbeat line
+            // Generate heart shape points for EKG to follow
+            const ekgHeartPoints = [];
+            for (let t = 0; t < 2 * Math.PI; t += 0.02) {
+                const x = 16 * Math.pow(Math.sin(t), 3);
+                const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+                ekgHeartPoints.push({ x, y });
+            }
+            
+            // Animate heartbeat line following heart shape
             const hbCtx = heartbeatCanvas.getContext('2d');
-            let offset = 0;
+            let progress = 0;
+            let heartIndex = 0;
             
             function drawHeartbeat() {
                 hbCtx.clearRect(0, 0, heartbeatCanvas.width, heartbeatCanvas.height);
                 
-                // Grid lines
-                hbCtx.strokeStyle = 'rgba(255, 133, 162, 0.2)';
-                hbCtx.lineWidth = 1;
-                for (let i = 0; i < heartbeatCanvas.height; i += 20) {
-                    hbCtx.beginPath();
-                    hbCtx.moveTo(0, i);
-                    hbCtx.lineTo(heartbeatCanvas.width, i);
-                    hbCtx.stroke();
-                }
-                for (let i = 0; i < heartbeatCanvas.width; i += 20) {
-                    hbCtx.beginPath();
-                    hbCtx.moveTo(i, 0);
-                    hbCtx.lineTo(i, heartbeatCanvas.height);
-                    hbCtx.stroke();
-                }
+                const centerX = heartbeatCanvas.width / 2;
+                const centerY = heartbeatCanvas.height / 2 + 20;
+                const heartScale = 4;
                 
-                // Heartbeat line
+                // Draw the EKG line forming a heart shape
                 hbCtx.strokeStyle = '#ff4d6d';
                 hbCtx.lineWidth = 3;
                 hbCtx.beginPath();
                 
-                const centerY = heartbeatCanvas.height / 2;
-                const beatInterval = 200; // Distance between beats
-                
-                for (let x = 0; x < heartbeatCanvas.width; x++) {
-                    const adjustedX = x + offset;
-                    const beatPos = adjustedX % beatInterval;
+                // Draw heart outline with EKG style
+                for (let i = 0; i < ekgHeartPoints.length; i++) {
+                    const point = ekgHeartPoints[i];
+                    const x = centerX + point.x * heartScale;
+                    const y = centerY + point.y * heartScale;
                     
-                    let y = centerY;
+                    // Add EKG-style variations to the line
+                    const ekgVariation = Math.sin(i * 0.5 + progress) * 2;
                     
-                    // ECG waveform pattern
-                    if (beatPos < 10) {
-                        // P wave (small bump before main spike)
-                        y = centerY - Math.sin((beatPos / 10) * Math.PI) * 10;
-                    } else if (beatPos >= 20 && beatPos < 25) {
-                        // Q wave (small dip)
-                        y = centerY + 8;
-                    } else if (beatPos >= 25 && beatPos < 35) {
-                        // R wave (main spike)
-                        const progress = (beatPos - 25) / 10;
-                        if (progress < 0.5) {
-                            y = centerY - (progress * 2) * 60;
-                        } else {
-                            y = centerY - ((1 - progress) * 2) * 60;
-                        }
-                    } else if (beatPos >= 35 && beatPos < 40) {
-                        // S wave (small dip after spike)
-                        y = centerY + 12;
-                    } else if (beatPos >= 50 && beatPos < 70) {
-                        // T wave (recovery wave)
-                        y = centerY - Math.sin(((beatPos - 50) / 20) * Math.PI) * 15;
-                    }
-                    
-                    if (x === 0) {
-                        hbCtx.moveTo(x, y);
+                    if (i === 0) {
+                        hbCtx.moveTo(x, y + ekgVariation);
                     } else {
-                        hbCtx.lineTo(x, y);
+                        // Add sharp peaks for EKG effect at certain intervals
+                        if (i % 20 === 0) {
+                            const peakHeight = 15;
+                            hbCtx.lineTo(x - 3, y);
+                            hbCtx.lineTo(x, y - peakHeight);
+                            hbCtx.lineTo(x + 3, y);
+                        } else if (i % 10 === 0) {
+                            const smallPeakHeight = 8;
+                            hbCtx.lineTo(x - 2, y);
+                            hbCtx.lineTo(x, y - smallPeakHeight);
+                            hbCtx.lineTo(x + 2, y);
+                        } else {
+                            hbCtx.lineTo(x, y + ekgVariation);
+                        }
                     }
                 }
                 
+                hbCtx.closePath();
                 hbCtx.stroke();
                 
                 // Glow effect
-                hbCtx.shadowBlur = 10;
+                hbCtx.shadowBlur = 15;
                 hbCtx.shadowColor = '#ff4d6d';
                 hbCtx.stroke();
                 hbCtx.shadowBlur = 0;
                 
-                offset += 3; // Speed of the line moving
-                if (offset > beatInterval) {
-                    offset = 0;
-                }
+                // Animated tracing effect - draw a moving bright spot
+                const currentPoint = ekgHeartPoints[heartIndex];
+                const spotX = centerX + currentPoint.x * heartScale;
+                const spotY = centerY + currentPoint.y * heartScale;
+                
+                hbCtx.beginPath();
+                hbCtx.arc(spotX, spotY, 5, 0, Math.PI * 2);
+                hbCtx.fillStyle = '#ff1744';
+                hbCtx.shadowBlur = 20;
+                hbCtx.shadowColor = '#ff1744';
+                hbCtx.fill();
+                hbCtx.shadowBlur = 0;
+                
+                progress += 0.05;
+                heartIndex = (heartIndex + 1) % ekgHeartPoints.length;
                 
                 requestAnimationFrame(drawHeartbeat);
             }
