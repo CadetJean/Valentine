@@ -139,6 +139,15 @@
             font-size: clamp(0.85rem, 3.5vw, 0.95rem);
             line-height: 1.6;
             text-align: left;
+            position: relative;
+        }
+
+        .message-to {
+            text-align: right;
+            font-size: clamp(0.75rem, 3vw, 0.85rem);
+            color: #ff4d6d;
+            margin-bottom: 15px;
+            font-style: italic;
         }
 
         .message-title {
@@ -147,6 +156,14 @@
             margin-bottom: 10px;
             text-align: center;
             color: #ff4d6d;
+        }
+
+        .message-from {
+            text-align: right;
+            font-size: clamp(0.75rem, 3vw, 0.85rem);
+            color: #ff4d6d;
+            margin-top: 15px;
+            font-style: italic;
         }
 
         /* Particle Heart Canvas */
@@ -562,11 +579,11 @@
                 <a href="${calendarLink}" target="_blank" class="calendar-btn">📅 Add Dinner to Calendar</a>
                 
                 <div class="love-message">
+                    <div class="message-to">To: Halle</div>
                     <div class="message-title">"Every day with you is my favorite adventure"</div>
                     This means that life with you isn't just a routine, but a constant journey full of discovery and joy. It implies that no matter where we are or what we are doing, whether we're out on a trip or just relaxing at home, being by your side is what makes the experience meaningful. It frames our relationship as an ongoing story where the best parts are the moments we share together, making even the simplest days feel like a special destination.
-           <br>From Jean Cadet    </div>
-                
-                <div style="font-size: clamp(10px, 2.5vw, 12px); margin-top: 20px; color: #ffb3c1;">From Jean R. Cadet</div>
+                    <div class="message-from">From: Jean Cadet</div>
+                </div>
             `;
             document.body.style.backgroundColor = "#ffc1cf";
             createHeartbeatMonitor();
