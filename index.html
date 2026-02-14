@@ -178,149 +178,36 @@
             to { opacity: 1; }
         }
 
-        /* Improved Flower Animation */
-        .flower {
+        /* Heartbeat Monitor */
+        .heartbeat-container {
             position: fixed;
             bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 150px;
+            background: rgba(255, 240, 245, 0.9);
+            border-top: 2px solid #ff85a2;
             z-index: 5;
             pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .stem {
-            width: clamp(4px, 1vw, 6px);
-            background: linear-gradient(to top, #2d5016, #4a7c23, #6faa3e);
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            height: 0;
-            border-radius: 3px;
-            animation: growStem 2s ease-out forwards;
-        }
-
-        .flower-bloom {
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            animation: moveUp 2s ease-out forwards;
-        }
-
-        .petal {
-            position: absolute;
-            width: clamp(25px, 6vw, 35px);
-            height: clamp(35px, 8vw, 45px);
-            background: radial-gradient(ellipse at 30% 30%, #ffb3d9, #ff85a2);
-            border-radius: 50% 50% 50% 0%;
-            box-shadow: inset -2px -2px 5px rgba(255, 77, 109, 0.3);
-            transform-origin: bottom right;
-            animation: petalBloom 0.6s ease-out forwards;
-            opacity: 0;
-        }
-
-        .petal:nth-child(1) { 
-            transform: rotate(-90deg) translateX(-17px) translateY(17px);
-            animation-delay: 2s;
-        }
-        .petal:nth-child(2) { 
-            transform: rotate(-18deg) translateX(-17px) translateY(17px);
-            animation-delay: 2.1s;
-        }
-        .petal:nth-child(3) { 
-            transform: rotate(54deg) translateX(-17px) translateY(17px);
-            animation-delay: 2.2s;
-        }
-        .petal:nth-child(4) { 
-            transform: rotate(126deg) translateX(-17px) translateY(17px);
-            animation-delay: 2.3s;
-        }
-        .petal:nth-child(5) { 
-            transform: rotate(198deg) translateX(-17px) translateY(17px);
-            animation-delay: 2.4s;
-        }
-
-        .flower-center {
-            position: absolute;
-            width: clamp(20px, 5vw, 28px);
-            height: clamp(20px, 5vw, 28px);
-            background: radial-gradient(circle at 40% 40%, #FFE135, #FFC700, #FF8C00);
-            border-radius: 50%;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0);
-            box-shadow: 0 2px 8px rgba(255, 140, 0, 0.4);
-            animation: centerBloom 0.4s ease-out 2.5s forwards;
-        }
-
-        .flower-center::after {
-            content: '';
-            position: absolute;
+        #heartbeatCanvas {
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle at 60% 60%, transparent 40%, rgba(139, 69, 19, 0.2) 60%);
-            border-radius: 50%;
         }
 
-        .leaf {
-            position: absolute;
-            width: clamp(22px, 5vw, 30px);
-            height: clamp(14px, 3vw, 18px);
-            background: linear-gradient(135deg, #6faa3e 0%, #4a7c23 100%);
-            border-radius: 0 80% 80% 0;
-            opacity: 0;
-            box-shadow: inset -1px -1px 3px rgba(0, 0, 0, 0.2);
-        }
-
-        .leaf-left {
-            left: clamp(-15px, -3vw, -18px);
-            top: clamp(50px, 12vw, 70px);
-            animation: leafGrow 0.6s ease-out 1.2s forwards;
-            transform-origin: right center;
-        }
-
-        .leaf-right {
-            right: clamp(-15px, -3vw, -18px);
-            top: clamp(70px, 16vw, 100px);
-            animation: leafGrow 0.6s ease-out 1.4s forwards;
-            transform-origin: left center;
-            transform: scaleX(-1);
-        }
-
-        @keyframes growStem {
-            from { height: 0; }
-            to { height: clamp(120px, 25vh, 180px); }
-        }
-
-        @keyframes moveUp {
-            from { bottom: 0; }
-            to { bottom: clamp(120px, 25vh, 180px); }
-        }
-
-        @keyframes petalBloom {
-            from { 
-                opacity: 0;
-                transform: rotate(var(--rotation, 0deg)) translateX(-17px) translateY(17px) scale(0);
-            }
-            to { 
-                opacity: 1;
-                transform: rotate(var(--rotation, 0deg)) translateX(-17px) translateY(17px) scale(1);
-            }
-        }
-
-        @keyframes centerBloom {
-            from { transform: translate(-50%, -50%) scale(0); }
-            to { transform: translate(-50%, -50%) scale(1); }
-        }
-
-        @keyframes leafGrow {
-            from { 
-                opacity: 0;
-                transform: scaleX(0) rotate(-10deg);
-            }
-            to { 
-                opacity: 1;
-                transform: scaleX(1) rotate(0deg);
-            }
+        .heartbeat-text {
+            position: fixed;
+            bottom: 10px;
+            right: 20px;
+            font-size: clamp(0.8rem, 3vw, 1rem);
+            color: #ff4d6d;
+            font-weight: bold;
+            z-index: 6;
+            font-family: 'Courier New', monospace;
         }
 
         /* iPhone 15 Pro specific adjustments */
@@ -330,6 +217,10 @@
                 padding-right: max(20px, env(safe-area-inset-right));
                 padding-top: max(20px, env(safe-area-inset-top));
                 padding-bottom: max(20px, env(safe-area-inset-bottom));
+            }
+            
+            .heartbeat-container {
+                padding-bottom: env(safe-area-inset-bottom);
             }
         }
     </style>
@@ -556,44 +447,109 @@
             setTimeout(() => heart.remove(), 5000);
         }
 
-        function createFlower() {
-            const positions = [10, 25, 50, 75, 90];
-            positions.forEach((pos, index) => {
-                setTimeout(() => {
-                    const flower = document.createElement('div');
-                    flower.className = 'flower';
-                    flower.style.left = pos + '%';
+        function createHeartbeatMonitor() {
+            // Create heartbeat monitor container
+            const container = document.createElement('div');
+            container.className = 'heartbeat-container';
+            
+            const heartbeatCanvas = document.createElement('canvas');
+            heartbeatCanvas.id = 'heartbeatCanvas';
+            heartbeatCanvas.width = window.innerWidth;
+            heartbeatCanvas.height = 150;
+            
+            const heartbeatText = document.createElement('div');
+            heartbeatText.className = 'heartbeat-text';
+            heartbeatText.innerHTML = '♥ 120 BPM';
+            
+            container.appendChild(heartbeatCanvas);
+            document.body.appendChild(container);
+            document.body.appendChild(heartbeatText);
+            
+            // Animate heartbeat line
+            const hbCtx = heartbeatCanvas.getContext('2d');
+            let offset = 0;
+            let beatPhase = 0;
+            
+            function drawHeartbeat() {
+                hbCtx.clearRect(0, 0, heartbeatCanvas.width, heartbeatCanvas.height);
+                
+                // Grid lines
+                hbCtx.strokeStyle = 'rgba(255, 133, 162, 0.2)';
+                hbCtx.lineWidth = 1;
+                for (let i = 0; i < heartbeatCanvas.height; i += 20) {
+                    hbCtx.beginPath();
+                    hbCtx.moveTo(0, i);
+                    hbCtx.lineTo(heartbeatCanvas.width, i);
+                    hbCtx.stroke();
+                }
+                for (let i = 0; i < heartbeatCanvas.width; i += 20) {
+                    hbCtx.beginPath();
+                    hbCtx.moveTo(i, 0);
+                    hbCtx.lineTo(i, heartbeatCanvas.height);
+                    hbCtx.stroke();
+                }
+                
+                // Heartbeat line
+                hbCtx.strokeStyle = '#ff4d6d';
+                hbCtx.lineWidth = 3;
+                hbCtx.beginPath();
+                
+                const centerY = heartbeatCanvas.height / 2;
+                const beatInterval = 200; // Distance between beats
+                
+                for (let x = 0; x < heartbeatCanvas.width; x++) {
+                    const adjustedX = x + offset;
+                    const beatPos = adjustedX % beatInterval;
                     
-                    const stem = document.createElement('div');
-                    stem.className = 'stem';
+                    let y = centerY;
                     
-                    const flowerBloom = document.createElement('div');
-                    flowerBloom.className = 'flower-bloom';
-                    
-                    // Create 5 petals
-                    for (let i = 0; i < 5; i++) {
-                        const petal = document.createElement('div');
-                        petal.className = 'petal';
-                        flowerBloom.appendChild(petal);
+                    // ECG waveform pattern
+                    if (beatPos < 10) {
+                        // P wave (small bump before main spike)
+                        y = centerY - Math.sin((beatPos / 10) * Math.PI) * 10;
+                    } else if (beatPos >= 20 && beatPos < 25) {
+                        // Q wave (small dip)
+                        y = centerY + 8;
+                    } else if (beatPos >= 25 && beatPos < 35) {
+                        // R wave (main spike)
+                        const progress = (beatPos - 25) / 10;
+                        if (progress < 0.5) {
+                            y = centerY - (progress * 2) * 60;
+                        } else {
+                            y = centerY - ((1 - progress) * 2) * 60;
+                        }
+                    } else if (beatPos >= 35 && beatPos < 40) {
+                        // S wave (small dip after spike)
+                        y = centerY + 12;
+                    } else if (beatPos >= 50 && beatPos < 70) {
+                        // T wave (recovery wave)
+                        y = centerY - Math.sin(((beatPos - 50) / 20) * Math.PI) * 15;
                     }
                     
-                    const center = document.createElement('div');
-                    center.className = 'flower-center';
-                    flowerBloom.appendChild(center);
-                    
-                    const leafLeft = document.createElement('div');
-                    leafLeft.className = 'leaf leaf-left';
-                    stem.appendChild(leafLeft);
-                    
-                    const leafRight = document.createElement('div');
-                    leafRight.className = 'leaf leaf-right';
-                    stem.appendChild(leafRight);
-                    
-                    flower.appendChild(stem);
-                    flower.appendChild(flowerBloom);
-                    document.body.appendChild(flower);
-                }, index * 400);
-            });
+                    if (x === 0) {
+                        hbCtx.moveTo(x, y);
+                    } else {
+                        hbCtx.lineTo(x, y);
+                    }
+                }
+                
+                hbCtx.stroke();
+                
+                // Glow effect
+                hbCtx.shadowBlur = 10;
+                hbCtx.shadowColor = '#ff4d6d';
+                hbCtx.stroke();
+                hbCtx.shadowBlur = 0;
+                
+                offset += 3; // Speed of the line moving
+                if (offset > beatInterval) {
+                    offset = 0;
+                }
+                
+                requestAnimationFrame(drawHeartbeat);
+            }
+            
+            drawHeartbeat();
         }
 
         function accepted() {
@@ -616,7 +572,7 @@
             `;
             document.body.style.backgroundColor = "#ffc1cf";
             setInterval(createHeart, 150);
-            createFlower();
+            createHeartbeatMonitor();
         }
 
         setInterval(() => {
