@@ -369,7 +369,8 @@
         const ctx = canvas.getContext('2d');
         const particles = [];
         const heartPositions = [];
-        let rotationAngle = 0;
+        let rotationX = 0; // Rotation around X-axis (vertical flip)
+        let rotationY = 0; // Rotation around Y-axis (horizontal flip)
         
         // Function to check if a point is inside the heart shape
         function isInsideHeart(x, y, centerX, centerY, scale) {
@@ -393,7 +394,8 @@
             const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
             heartPositions.push({
                 x: x * scale,
-                y: y * scale - (isMobile ? 10 : 20)
+                y: y * scale - (isMobile ? 10 : 20),
+                z: 0
             });
         }
         
@@ -405,19 +407,21 @@
                     // Convert to relative coordinates
                     heartPositions.push({
                         x: (x - centerX) + Math.random() * gridSize,
-                        y: (y - centerY) + Math.random() * gridSize
+                        y: (y - centerY) + Math.random() * gridSize,
+                        z: 0
                     });
                 }
             }
         }
 
         class Particle {
-            constructor(targetX, targetY, delay) {
+            constructor(targetX, targetY, targetZ, delay) {
                 this.x = canvas.width / 2 + (Math.random() - 0.5) * 100;
                 this.startY = canvas.height + 20;
                 this.y = this.startY;
                 this.targetX = targetX;
                 this.targetY = targetY;
+                this.targetZ = targetZ;
                 this.size = Math.random() * 2.5 + 1.5;
                 this.delay = delay;
                 this.elapsed = 0;
@@ -425,6 +429,7 @@
                 this.color = `hsl(${330 + Math.random() * 30}, 100%, ${60 + Math.random() * 20}%)`;
                 this.currentX = this.x;
                 this.currentY = this.y;
+                this.currentZ = 0;
             }
 
             update(deltaTime) {
@@ -440,15 +445,30 @@
                 const tempY = this.startY + (this.targetY - this.startY) * easeProgress;
                 const tempX = this.x + (this.targetX - this.x) * easeProgress * 0.1;
                 
-                // Apply rotation around center
+                // Apply 3D rotation
                 const relX = this.targetX;
                 const relY = this.targetY;
+                const relZ = this.targetZ;
                 
-                const cos = Math.cos(rotationAngle);
-                const sin = Math.sin(rotationAngle);
+                // Rotation around Y-axis (left-right flip)
+                const cosY = Math.cos(rotationY);
+                const sinY = Math.sin(rotationY);
+                const rotatedX = relX * cosY - relZ * sinY;
+                const rotatedZ1 = relX * sinY + relZ * cosY;
                 
-                this.currentX = centerX + (relX * cos - relY * sin);
-                this.currentY = centerY + (relX * sin + relY * cos);
+                // Rotation around X-axis (up-down flip)
+                const cosX = Math.cos(rotationX);
+                const sinX = Math.sin(rotationX);
+                const rotatedY = relY * cosX - rotatedZ1 * sinX;
+                const rotatedZ2 = relY * sinX + rotatedZ1 * cosX;
+                
+                // Apply perspective (simple perspective projection)
+                const perspective = 300;
+                const scale = perspective / (perspective + rotatedZ2);
+                
+                this.currentX = centerX + rotatedX * scale;
+                this.currentY = centerY + rotatedY * scale;
+                this.currentScale = scale;
                 
                 // Blend between rising animation and final rotated position
                 if (progress < 1) {
@@ -462,13 +482,15 @@
             draw() {
                 if (this.elapsed < this.delay) return;
                 
+                const drawSize = this.size * (this.currentScale || 1);
+                
                 ctx.beginPath();
-                ctx.arc(this.currentX, this.currentY, this.size, 0, Math.PI * 2);
+                ctx.arc(this.currentX, this.currentY, drawSize, 0, Math.PI * 2);
                 ctx.fillStyle = this.color;
                 ctx.fill();
                 
                 // Glow effect
-                ctx.shadowBlur = 8;
+                ctx.shadowBlur = 8 * (this.currentScale || 1);
                 ctx.shadowColor = this.color;
                 ctx.fill();
                 ctx.shadowBlur = 0;
@@ -477,12 +499,14 @@
 
         // Create particles
         heartPositions.forEach((pos, i) => {
-            particles.push(new Particle(pos.x, pos.y, i * 5));
+            particles.push(new Particle(pos.x, pos.y, pos.z, i * 5));
         });
 
         let lastTime = Date.now();
-        let rotationSpeed = 0.002; // Initial rotation speed while filling
-        let targetRotationSpeed = 0.0008; // Slower speed after filling
+        let rotationSpeedX = 0.0015; // Rotation speed around X-axis
+        let rotationSpeedY = 0.0012; // Rotation speed around Y-axis
+        let targetRotationSpeedX = 0.0006; // Slower speed after filling
+        let targetRotationSpeedY = 0.0005; // Slower speed after filling
 
         function animateParticles() {
             const currentTime = Date.now();
@@ -494,10 +518,12 @@
             
             // Gradually slow down rotation after particles settle
             if (allParticlesSettled) {
-                rotationSpeed += (targetRotationSpeed - rotationSpeed) * 0.02;
+                rotationSpeedX += (targetRotationSpeedX - rotationSpeedX) * 0.02;
+                rotationSpeedY += (targetRotationSpeedY - rotationSpeedY) * 0.02;
             }
             
-            rotationAngle += rotationSpeed * deltaTime;
+            rotationX += rotationSpeedX * deltaTime;
+            rotationY += rotationSpeedY * deltaTime;
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
