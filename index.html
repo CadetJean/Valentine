@@ -369,6 +369,7 @@
         const ctx = canvas.getContext('2d');
         const particles = [];
         const heartPositions = [];
+        let rotationAngle = 0;
         
         // Function to check if a point is inside the heart shape
         function isInsideHeart(x, y, centerX, centerY, scale) {
@@ -391,8 +392,8 @@
             const x = 16 * Math.pow(Math.sin(t), 3);
             const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
             heartPositions.push({
-                x: centerX + x * scale,
-                y: centerY + y * scale - (isMobile ? 10 : 20)
+                x: x * scale,
+                y: y * scale - (isMobile ? 10 : 20)
             });
         }
         
@@ -401,10 +402,10 @@
         for (let x = centerX - 140; x < centerX + 140; x += gridSize) {
             for (let y = centerY - 140; y < centerY + 60; y += gridSize) {
                 if (isInsideHeart(x, y, centerX, centerY, scale)) {
-                    // Add some randomness to avoid perfect grid
+                    // Convert to relative coordinates
                     heartPositions.push({
-                        x: x + Math.random() * gridSize,
-                        y: y + Math.random() * gridSize
+                        x: (x - centerX) + Math.random() * gridSize,
+                        y: (y - centerY) + Math.random() * gridSize
                     });
                 }
             }
@@ -422,165 +423,11 @@
                 this.elapsed = 0;
                 this.duration = 2000 + Math.random() * 1000;
                 this.color = `hsl(${330 + Math.random() * 30}, 100%, ${60 + Math.random() * 20}%)`;
+                this.currentX = this.x;
+                this.currentY = this.y;
             }
 
             update(deltaTime) {
                 if (this.elapsed < this.delay) {
                     this.elapsed += deltaTime;
                     return;
-                }
-
-                const progress = Math.min((this.elapsed - this.delay) / this.duration, 1);
-                const easeProgress = 1 - Math.pow(1 - progress, 3);
-                
-                this.y = this.startY + (this.targetY - this.startY) * easeProgress;
-                this.x = this.x + (this.targetX - this.x) * easeProgress * 0.1;
-                
-                this.elapsed += deltaTime;
-            }
-
-            draw() {
-                if (this.elapsed < this.delay) return;
-                
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
-                ctx.fill();
-                
-                // Glow effect
-                ctx.shadowBlur = 8;
-                ctx.shadowColor = this.color;
-                ctx.fill();
-                ctx.shadowBlur = 0;
-            }
-        }
-
-        // Create particles
-        heartPositions.forEach((pos, i) => {
-            particles.push(new Particle(pos.x, pos.y, i * 5));
-        });
-
-        let lastTime = Date.now();
-
-        function animateParticles() {
-            const currentTime = Date.now();
-            const deltaTime = currentTime - lastTime;
-            lastTime = currentTime;
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            particles.forEach(particle => {
-                particle.update(deltaTime);
-                particle.draw();
-            });
-
-            requestAnimationFrame(animateParticles);
-        }
-
-        animateParticles();
-
-        function denied() {
-            alert(errorMessages[noClickCount % errorMessages.length]);
-            noBtn.innerText = "Invalid ❌";
-            let currentSize = parseFloat(window.getComputedStyle(yesBtn).fontSize);
-            yesBtn.style.fontSize = (currentSize + 10) + "px";
-            yesBtn.style.padding = (parseFloat(window.getComputedStyle(yesBtn).padding) + 8) + "px";
-            noClickCount++;
-        }
-
-        function createHeart() {
-            const heart = document.createElement('div');
-            heart.classList.add('confetti');
-            heart.innerText = ['💖', '💗', '💓', '💕', '🐶'][Math.floor(Math.random() * 5)];
-            heart.style.left = Math.random() * 100 + "vw";
-            heart.style.animationDuration = (Math.random() * 2 + 3) + "s";
-            document.body.appendChild(heart);
-            setTimeout(() => heart.remove(), 5000);
-        }
-
-        function createFlower() {
-            const positions = [10, 25, 50, 75, 90];
-            positions.forEach((pos, index) => {
-                setTimeout(() => {
-                    const flower = document.createElement('div');
-                    flower.className = 'flower';
-                    flower.style.left = pos + '%';
-                    
-                    const stem = document.createElement('div');
-                    stem.className = 'stem';
-                    
-                    const flowerBloom = document.createElement('div');
-                    flowerBloom.className = 'flower-bloom';
-                    
-                    // Create 5 petals
-                    for (let i = 0; i < 5; i++) {
-                        const petal = document.createElement('div');
-                        petal.className = 'petal';
-                        flowerBloom.appendChild(petal);
-                    }
-                    
-                    const center = document.createElement('div');
-                    center.className = 'flower-center';
-                    flowerBloom.appendChild(center);
-                    
-                    const leafLeft = document.createElement('div');
-                    leafLeft.className = 'leaf leaf-left';
-                    stem.appendChild(leafLeft);
-                    
-                    const leafRight = document.createElement('div');
-                    leafRight.className = 'leaf leaf-right';
-                    stem.appendChild(leafRight);
-                    
-                    flower.appendChild(stem);
-                    flower.appendChild(flowerBloom);
-                    document.body.appendChild(flower);
-                }, index * 400);
-            });
-        }
-
-        function accepted() {
-            const eventTitle = encodeURIComponent("Valentine's Dinner at Jean's");
-            const eventDetails = encodeURIComponent("Menu: Pasta & Wine 🍝🍷\nEvening Plans: S'mores & relaxing! 🔥");
-            const calendarLink = `https://www.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=20260214T233000Z/20260215T030000Z&details=${eventDetails}&location=Jean's+Place`;
-            
-            document.getElementById('valentineCard').innerHTML = `
-                <div style="font-size: clamp(40px, 12vw, 60px);">🍝🍷✨</div>
-                <h1 style="color: #ff4d6d;">It's a Date, Halle!</h1>
-                <div class="love-text-after">I love you Halle ❤️</div>
-                <a href="${calendarLink}" target="_blank" class="calendar-btn">📅 Add Dinner to Calendar</a>
-                
-                <div class="love-message">
-                    <div class="message-title">"Every day with you is my favorite adventure"</div>
-                    This means that life with you isn't just a routine, but a constant journey full of discovery and joy. It implies that no matter where we are or what we are doing, whether we're out on a trip or just relaxing at home, being by your side is what makes the experience meaningful. It frames our relationship as an ongoing story where the best parts are the moments we share together, making even the simplest days feel like a special destination.
-                </div>
-                
-                <div style="font-size: clamp(10px, 2.5vw, 12px); margin-top: 20px; color: #ffb3c1;">From Jean Cadet</div>
-            `;
-            document.body.style.backgroundColor = "#ffc1cf";
-            setInterval(createHeart, 150);
-            createFlower();
-        }
-
-        setInterval(() => {
-            const bh = document.createElement('div');
-            bh.classList.add('bg-heart');
-            bh.innerHTML = '❤️';
-            bh.style.left = Math.random() * 100 + 'vw';
-            bh.style.bottom = '-5vh';
-            bh.style.fontSize = (Math.random() * 15 + 10) + 'px';
-            document.body.appendChild(bh);
-            setTimeout(() => bh.remove(), 6000);
-        }, 500);
-
-        // Prevent zoom on double tap
-        let lastTouchEnd = 0;
-        document.addEventListener('touchend', function (event) {
-            const now = (new Date()).getTime();
-            if (now - lastTouchEnd <= 300) {
-                event.preventDefault();
-            }
-            lastTouchEnd = now;
-        }, false);
-    </script>
-</body>
-</html>
