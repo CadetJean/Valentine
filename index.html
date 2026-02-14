@@ -77,12 +77,6 @@
             to { transform: translateY(110vh) rotate(360deg); }
         }
 
-        .dog-gif {
-            width: 220px;
-            border-radius: 15px;
-            margin-bottom: 10px;
-        }
-
         .calendar-btn {
             display: inline-block;
             margin-top: 20px;
@@ -116,113 +110,166 @@
             color: #ff4d6d;
         }
 
-        /* Mathematical Heart Animation */
-        #heartCanvas {
+        /* Particle Heart Canvas */
+        #particleCanvas {
             margin: 20px auto;
             display: block;
-            background-color: #fafafa;
-            border-radius: 10px;
         }
 
-        /* Flower Animation Styles */
+        .love-text {
+            font-size: 1.5rem;
+            color: #ff4d6d;
+            font-weight: bold;
+            margin-top: 10px;
+            opacity: 0;
+            animation: fadeIn 1s ease-in 4s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        /* Improved Flower Animation */
         .flower {
             position: absolute;
             bottom: 0;
             z-index: 5;
-            animation: grow 3s ease-out forwards;
         }
 
         .stem {
-            width: 4px;
-            background: linear-gradient(to top, #90EE90, #228B22);
+            width: 6px;
+            background: linear-gradient(to top, #2d5016, #4a7c23, #6faa3e);
             position: absolute;
             bottom: 0;
             left: 50%;
             transform: translateX(-50%);
             height: 0;
+            border-radius: 3px;
             animation: growStem 2s ease-out forwards;
         }
 
-        .flower-head {
+        .flower-bloom {
             position: absolute;
             bottom: 0;
             left: 50%;
-            transform: translateX(-50%) scale(0);
-            animation: bloomFlower 1.5s ease-out 2s forwards;
+            transform: translateX(-50%);
+            animation: moveUp 2s ease-out forwards;
         }
 
         .petal {
             position: absolute;
-            width: 30px;
-            height: 40px;
-            background: radial-gradient(ellipse at center, #ff85a2, #ff4d6d);
-            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-            transform-origin: center bottom;
+            width: 35px;
+            height: 45px;
+            background: radial-gradient(ellipse at 30% 30%, #ffb3d9, #ff85a2);
+            border-radius: 50% 50% 50% 0%;
+            box-shadow: inset -2px -2px 5px rgba(255, 77, 109, 0.3);
+            transform-origin: bottom right;
+            animation: petalBloom 0.6s ease-out forwards;
+            opacity: 0;
         }
 
-        .petal:nth-child(1) { transform: rotate(0deg) translateY(-20px); }
-        .petal:nth-child(2) { transform: rotate(72deg) translateY(-20px); }
-        .petal:nth-child(3) { transform: rotate(144deg) translateY(-20px); }
-        .petal:nth-child(4) { transform: rotate(216deg) translateY(-20px); }
-        .petal:nth-child(5) { transform: rotate(288deg) translateY(-20px); }
+        .petal:nth-child(1) { 
+            transform: rotate(-90deg) translateX(-17px) translateY(17px);
+            animation-delay: 2s;
+        }
+        .petal:nth-child(2) { 
+            transform: rotate(-18deg) translateX(-17px) translateY(17px);
+            animation-delay: 2.1s;
+        }
+        .petal:nth-child(3) { 
+            transform: rotate(54deg) translateX(-17px) translateY(17px);
+            animation-delay: 2.2s;
+        }
+        .petal:nth-child(4) { 
+            transform: rotate(126deg) translateX(-17px) translateY(17px);
+            animation-delay: 2.3s;
+        }
+        .petal:nth-child(5) { 
+            transform: rotate(198deg) translateX(-17px) translateY(17px);
+            animation-delay: 2.4s;
+        }
 
-        .center {
+        .flower-center {
             position: absolute;
-            width: 20px;
-            height: 20px;
-            background: radial-gradient(circle, #FFD700, #FFA500);
+            width: 28px;
+            height: 28px;
+            background: radial-gradient(circle at 40% 40%, #FFE135, #FFC700, #FF8C00);
             border-radius: 50%;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%) scale(0);
+            box-shadow: 0 2px 8px rgba(255, 140, 0, 0.4);
+            animation: centerBloom 0.4s ease-out 2.5s forwards;
+        }
+
+        .flower-center::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 60% 60%, transparent 40%, rgba(139, 69, 19, 0.2) 60%);
+            border-radius: 50%;
         }
 
         .leaf {
             position: absolute;
-            width: 25px;
-            height: 15px;
-            background: #90EE90;
-            border-radius: 0 50% 50% 0;
+            width: 30px;
+            height: 18px;
+            background: linear-gradient(135deg, #6faa3e 0%, #4a7c23 100%);
+            border-radius: 0 80% 80% 0;
             opacity: 0;
+            box-shadow: inset -1px -1px 3px rgba(0, 0, 0, 0.2);
         }
 
         .leaf-left {
-            left: -15px;
-            animation: growLeaf 0.8s ease-out 1.5s forwards;
+            left: -18px;
+            top: 70px;
+            animation: leafGrow 0.6s ease-out 1.2s forwards;
             transform-origin: right center;
         }
 
         .leaf-right {
-            right: -15px;
-            animation: growLeaf 0.8s ease-out 1.7s forwards;
+            right: -18px;
+            top: 100px;
+            animation: leafGrow 0.6s ease-out 1.4s forwards;
             transform-origin: left center;
             transform: scaleX(-1);
         }
 
         @keyframes growStem {
             from { height: 0; }
-            to { height: 150px; }
+            to { height: 180px; }
         }
 
-        @keyframes bloomFlower {
-            from { 
-                transform: translateX(-50%) scale(0) rotate(0deg);
-                bottom: 0;
-            }
-            to { 
-                transform: translateX(-50%) scale(1) rotate(360deg);
-                bottom: 150px;
-            }
+        @keyframes moveUp {
+            from { bottom: 0; }
+            to { bottom: 180px; }
         }
 
-        @keyframes growLeaf {
+        @keyframes petalBloom {
             from { 
                 opacity: 0;
-                transform: scaleX(0);
+                transform: rotate(var(--rotation, 0deg)) translateX(-17px) translateY(17px) scale(0);
             }
             to { 
                 opacity: 1;
-                transform: scaleX(1);
+                transform: rotate(var(--rotation, 0deg)) translateX(-17px) translateY(17px) scale(1);
+            }
+        }
+
+        @keyframes centerBloom {
+            from { transform: translate(-50%, -50%) scale(0); }
+            to { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        @keyframes leafGrow {
+            from { 
+                opacity: 0;
+                transform: scaleX(0) rotate(-10deg);
+            }
+            to { 
+                opacity: 1;
+                transform: scaleX(1) rotate(0deg);
             }
         }
     </style>
@@ -231,7 +278,8 @@
 
     <div class="card" id="valentineCard">
         <h1>Halle, will you be my Valentine?</h1>
-        <canvas id="heartCanvas" width="400" height="350"></canvas>
+        <canvas id="particleCanvas" width="400" height="280"></canvas>
+        <div class="love-text" id="loveText">I love you Halle ❤️</div>
         <div class="btn-group">
             <button id="yesBtn" onclick="accepted()">YES</button>
             <button id="noBtn" onclick="denied()">NO</button>
@@ -251,133 +299,90 @@
             "Access Denied. Did you mean to click 'Yes'?"
         ];
 
-        // Animated Mathematical Heart with axes
-        const canvas = document.getElementById('heartCanvas');
+        // Particle Heart Animation
+        const canvas = document.getElementById('particleCanvas');
         const ctx = canvas.getContext('2d');
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
-        const scale = 8;
-        let t = 0;
-        let animationProgress = 0;
+        const particles = [];
+        const heartPositions = [];
+        
+        // Generate heart shape positions
+        for (let t = 0; t < 2 * Math.PI; t += 0.05) {
+            const x = 16 * Math.pow(Math.sin(t), 3);
+            const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+            heartPositions.push({
+                x: canvas.width / 2 + x * 8,
+                y: canvas.height / 2 + y * 8 - 20
+            });
+        }
 
-        function drawGrid() {
-            ctx.strokeStyle = '#e0e0e0';
-            ctx.lineWidth = 0.5;
-            
-            // Vertical grid lines
-            for (let x = 0; x <= canvas.width; x += 20) {
-                ctx.beginPath();
-                ctx.moveTo(x, 0);
-                ctx.lineTo(x, canvas.height);
-                ctx.stroke();
+        class Particle {
+            constructor(targetX, targetY, delay) {
+                this.x = canvas.width / 2 + (Math.random() - 0.5) * 100;
+                this.startY = canvas.height + 20;
+                this.y = this.startY;
+                this.targetX = targetX;
+                this.targetY = targetY;
+                this.size = Math.random() * 3 + 2;
+                this.delay = delay;
+                this.elapsed = 0;
+                this.duration = 2000 + Math.random() * 1000;
+                this.color = `hsl(${330 + Math.random() * 30}, 100%, ${60 + Math.random() * 20}%)`;
             }
-            
-            // Horizontal grid lines
-            for (let y = 0; y <= canvas.height; y += 20) {
+
+            update(deltaTime) {
+                if (this.elapsed < this.delay) {
+                    this.elapsed += deltaTime;
+                    return;
+                }
+
+                const progress = Math.min((this.elapsed - this.delay) / this.duration, 1);
+                const easeProgress = 1 - Math.pow(1 - progress, 3);
+                
+                this.y = this.startY + (this.targetY - this.startY) * easeProgress;
+                this.x = this.x + (this.targetX - this.x) * easeProgress * 0.1;
+                
+                this.elapsed += deltaTime;
+            }
+
+            draw() {
+                if (this.elapsed < this.delay) return;
+                
                 ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(canvas.width, y);
-                ctx.stroke();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                
+                // Glow effect
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = this.color;
+                ctx.fill();
+                ctx.shadowBlur = 0;
             }
         }
 
-        function drawAxes() {
-            ctx.strokeStyle = '#666';
-            ctx.lineWidth = 2;
-            
-            // X-axis
-            ctx.beginPath();
-            ctx.moveTo(0, centerY);
-            ctx.lineTo(canvas.width, centerY);
-            ctx.stroke();
-            
-            // Y-axis
-            ctx.beginPath();
-            ctx.moveTo(centerX, 0);
-            ctx.lineTo(centerX, canvas.height);
-            ctx.stroke();
-            
-            // Arrow for X-axis
-            ctx.beginPath();
-            ctx.moveTo(canvas.width - 10, centerY - 5);
-            ctx.lineTo(canvas.width, centerY);
-            ctx.lineTo(canvas.width - 10, centerY + 5);
-            ctx.stroke();
-            
-            // Arrow for Y-axis
-            ctx.beginPath();
-            ctx.moveTo(centerX - 5, 10);
-            ctx.lineTo(centerX, 0);
-            ctx.lineTo(centerX + 5, 10);
-            ctx.stroke();
-            
-            // Labels
-            ctx.fillStyle = '#666';
-            ctx.font = '14px Arial';
-            ctx.fillText('x', canvas.width - 20, centerY - 10);
-            ctx.fillText('y', centerX + 10, 20);
-        }
+        // Create particles
+        heartPositions.forEach((pos, i) => {
+            particles.push(new Particle(pos.x, pos.y, i * 10));
+        });
 
-        function drawHeart() {
+        let lastTime = Date.now();
+
+        function animateParticles() {
+            const currentTime = Date.now();
+            const deltaTime = currentTime - lastTime;
+            lastTime = currentTime;
+
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Draw grid and axes
-            drawGrid();
-            drawAxes();
-            
-            // Draw the heart curve progressively
-            ctx.beginPath();
-            ctx.strokeStyle = `rgba(255, 77, 109, ${0.8 + Math.sin(t * 3) * 0.2})`;
-            ctx.lineWidth = 3;
-            
-            let drawn = false;
-            const maxAngle = animationProgress * 2 * Math.PI;
-            
-            for (let angle = 0; angle <= maxAngle; angle += 0.02) {
-                // Parametric heart equations using sin
-                const x = 16 * Math.pow(Math.sin(angle), 3);
-                const y = -(13 * Math.cos(angle) - 5 * Math.cos(2 * angle) - 2 * Math.cos(3 * angle) - Math.cos(4 * angle));
-                
-                // Scale and translate to center
-                const canvasX = centerX + x * scale;
-                const canvasY = centerY + y * scale - 20;
-                
-                if (!drawn) {
-                    ctx.moveTo(canvasX, canvasY);
-                    drawn = true;
-                } else {
-                    ctx.lineTo(canvasX, canvasY);
-                }
-            }
-            
-            ctx.stroke();
-            
-            // Draw points along the curve for visual effect
-            if (animationProgress >= 1) {
-                for (let angle = 0; angle <= 2 * Math.PI; angle += Math.PI / 12) {
-                    const x = 16 * Math.pow(Math.sin(angle), 3);
-                    const y = -(13 * Math.cos(angle) - 5 * Math.cos(2 * angle) - 2 * Math.cos(3 * angle) - Math.cos(4 * angle));
-                    
-                    const canvasX = centerX + x * scale;
-                    const canvasY = centerY + y * scale - 20;
-                    
-                    ctx.beginPath();
-                    ctx.arc(canvasX, canvasY, 3, 0, 2 * Math.PI);
-                    ctx.fillStyle = '#ff4d6d';
-                    ctx.fill();
-                }
-            }
-            
-            // Animate the drawing
-            if (animationProgress < 1) {
-                animationProgress += 0.01;
-            }
-            
-            t += 0.02;
-            requestAnimationFrame(drawHeart);
+            particles.forEach(particle => {
+                particle.update(deltaTime);
+                particle.draw();
+            });
+
+            requestAnimationFrame(animateParticles);
         }
 
-        drawHeart();
+        animateParticles();
 
         function denied() {
             alert(errorMessages[noClickCount % errorMessages.length]);
@@ -399,7 +404,7 @@
         }
 
         function createFlower() {
-            const positions = [15, 30, 70, 85];
+            const positions = [10, 25, 50, 75, 90];
             positions.forEach((pos, index) => {
                 setTimeout(() => {
                     const flower = document.createElement('div');
@@ -409,38 +414,36 @@
                     const stem = document.createElement('div');
                     stem.className = 'stem';
                     
-                    const flowerHead = document.createElement('div');
-                    flowerHead.className = 'flower-head';
+                    const flowerBloom = document.createElement('div');
+                    flowerBloom.className = 'flower-bloom';
                     
+                    // Create 5 petals
                     for (let i = 0; i < 5; i++) {
                         const petal = document.createElement('div');
                         petal.className = 'petal';
-                        flowerHead.appendChild(petal);
+                        flowerBloom.appendChild(petal);
                     }
                     
                     const center = document.createElement('div');
-                    center.className = 'center';
-                    flowerHead.appendChild(center);
+                    center.className = 'flower-center';
+                    flowerBloom.appendChild(center);
                     
                     const leafLeft = document.createElement('div');
                     leafLeft.className = 'leaf leaf-left';
-                    leafLeft.style.top = '60px';
                     stem.appendChild(leafLeft);
                     
                     const leafRight = document.createElement('div');
                     leafRight.className = 'leaf leaf-right';
-                    leafRight.style.top = '90px';
                     stem.appendChild(leafRight);
                     
                     flower.appendChild(stem);
-                    flower.appendChild(flowerHead);
+                    flower.appendChild(flowerBloom);
                     document.body.appendChild(flower);
-                }, index * 500);
+                }, index * 400);
             });
         }
 
         function accepted() {
-            // Updated calendar details for dinner at Jean's place
             const eventTitle = encodeURIComponent("Valentine's Dinner at Jean's");
             const eventDetails = encodeURIComponent("Menu: Pasta & Wine 🍝🍷\nEvening Plans: S'mores & relaxing! 🔥");
             const calendarLink = `https://www.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=20260214T233000Z/20260215T030000Z&details=${eventDetails}&location=Jean's+Place`;
@@ -459,7 +462,7 @@
             `;
             document.body.style.backgroundColor = "#ffc1cf";
             setInterval(createHeart, 150);
-            createFlower(); // Trigger flower animation
+            createFlower();
         }
 
         setInterval(() => {
