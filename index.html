@@ -27,7 +27,7 @@
         }
 
         .card {
-            background: white;
+            background: #fff0f5;
             padding: clamp(20px, 5vw, 40px);
             border-radius: 30px;
             border: 4px solid #ff85a2;
@@ -101,6 +101,7 @@
             position: absolute;
             transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             z-index: 50;
+            right: 0;
         }
 
         .confetti {
@@ -630,8 +631,8 @@
                 <div style="font-size: clamp(10px, 2.5vw, 12px); margin-top: 20px; color: #ffb3c1;">From Jean Cadet</div>
             `;
             document.body.style.backgroundColor = "#ffc1cf";
-            setInterval(createHeart, 150);
             createHeartbeatMonitor();
+            setInterval(createHeart, 150);
         }
 
         setInterval(() => {
