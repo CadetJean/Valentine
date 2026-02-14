@@ -232,10 +232,7 @@
                 padding-top: max(20px, env(safe-area-inset-top));
                 padding-bottom: max(20px, env(safe-area-inset-bottom));
             }
-            
-            .heartbeat-container {
-                padding-bottom: env(safe-area-inset-bottom);
-            }
+            .heartbeat-container { padding-bottom: env(safe-area-inset-bottom); }
         }
     </style>
 </head>
@@ -302,22 +299,14 @@
         for (let t = 0; t < 2 * Math.PI; t += 0.05) {
             const x = 16 * Math.pow(Math.sin(t), 3);
             const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
-            heartPositions.push({
-                x: x * scale,
-                y: y * scale - (isMobile ? 10 : 20),
-                z: 0
-            });
+            heartPositions.push({ x: x * scale, y: y * scale - (isMobile ? 10 : 20), z: 0 });
         }
         
         const gridSize = 8;
         for (let x = centerX - 140; x < centerX + 140; x += gridSize) {
             for (let y = centerY - 140; y < centerY + 60; y += gridSize) {
                 if (isInsideHeart(x, y, centerX, centerY, scale)) {
-                    heartPositions.push({
-                        x: (x - centerX) + Math.random() * gridSize,
-                        y: (y - centerY) + Math.random() * gridSize,
-                        z: 0
-                    });
+                    heartPositions.push({ x: (x - centerX) + Math.random() * gridSize, y: (y - centerY) + Math.random() * gridSize, z: 0 });
                 }
             }
         }
@@ -335,36 +324,25 @@
                 this.elapsed = 0;
                 this.duration = 2000 + Math.random() * 1000;
                 this.color = `hsl(${330 + Math.random() * 30}, 100%, ${60 + Math.random() * 20}%)`;
-                this.currentX = this.x;
-                this.currentY = this.y;
-                this.currentZ = 0;
+                this.currentX = this.x; this.currentY = this.y;
             }
 
             update(deltaTime) {
-                if (this.elapsed < this.delay) {
-                    this.elapsed += deltaTime;
-                    return;
-                }
+                if (this.elapsed < this.delay) { this.elapsed += deltaTime; return; }
                 const progress = Math.min((this.elapsed - this.delay) / this.duration, 1);
                 const easeProgress = 1 - Math.pow(1 - progress, 3);
                 const tempY = this.startY + (this.targetY - this.startY) * easeProgress;
                 const tempX = this.x + (this.targetX - this.x) * easeProgress * 0.1;
-                const relX = this.targetX;
-                const relY = this.targetY;
-                const relZ = this.targetZ;
-                const cosY = Math.cos(rotationY);
-                const sinY = Math.sin(rotationY);
-                const rotatedX = relX * cosY - relZ * sinY;
-                const rotatedZ1 = relX * sinY + relZ * cosY;
-                const cosX = Math.cos(rotationX);
-                const sinX = Math.sin(rotationX);
-                const rotatedY = relY * cosX - rotatedZ1 * sinX;
-                const rotatedZ2 = relY * sinX + rotatedZ1 * cosX;
-                const perspective = 300;
-                const scale = perspective / (perspective + rotatedZ2);
-                this.currentX = centerX + rotatedX * scale;
-                this.currentY = centerY + rotatedY * scale;
-                this.currentScale = scale;
+                const cosY = Math.cos(rotationY); const sinY = Math.sin(rotationY);
+                const rotatedX = this.targetX * cosY - this.targetZ * sinY;
+                const rotatedZ1 = this.targetX * sinY + this.targetZ * cosY;
+                const cosX = Math.cos(rotationX); const sinX = Math.sin(rotationX);
+                const rotatedY = this.targetY * cosX - rotatedZ1 * sinX;
+                const rotatedZ2 = this.targetY * sinX + rotatedZ1 * cosX;
+                const scale3D = 300 / (300 + rotatedZ2);
+                this.currentX = centerX + rotatedX * scale3D;
+                this.currentY = centerY + rotatedY * scale3D;
+                this.currentScale = scale3D;
                 if (progress < 1) {
                     this.currentX = tempX + (this.currentX - tempX) * progress;
                     this.currentY = tempY + (this.currentY - tempY) * progress;
@@ -377,169 +355,111 @@
                 const drawSize = this.size * (this.currentScale || 1);
                 ctx.beginPath();
                 ctx.arc(this.currentX, this.currentY, drawSize, 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
-                ctx.fill();
+                ctx.fillStyle = this.color; ctx.fill();
                 ctx.shadowBlur = 8 * (this.currentScale || 1);
-                ctx.shadowColor = this.color;
-                ctx.fill();
+                ctx.shadowColor = this.color; ctx.fill();
                 ctx.shadowBlur = 0;
             }
         }
 
-        heartPositions.forEach((pos, i) => {
-            particles.push(new Particle(pos.x, pos.y, pos.z, i * 5));
-        });
+        heartPositions.forEach((pos, i) => particles.push(new Particle(pos.x, pos.y, pos.z, i * 5)));
 
         let lastTime = Date.now();
-        let rotationSpeedX = 0.0015;
-        let rotationSpeedY = 0.0012;
-        let targetRotationSpeedX = 0.0006;
-        let targetRotationSpeedY = 0.0005;
+        let rotSpeedX = 0.0015; let rotSpeedY = 0.0012;
 
         function animateParticles() {
-            const currentTime = Date.now();
-            const deltaTime = currentTime - lastTime;
-            lastTime = currentTime;
-            const allParticlesSettled = particles.every(p => p.elapsed >= p.delay + p.duration);
-            if (allParticlesSettled) {
-                rotationSpeedX += (targetRotationSpeedX - rotationSpeedX) * 0.02;
-                rotationSpeedY += (targetRotationSpeedY - rotationSpeedY) * 0.02;
-            }
-            rotationX += rotationSpeedX * deltaTime;
-            rotationY += rotationSpeedY * deltaTime;
+            const currentTime = Date.now(); const deltaTime = currentTime - lastTime; lastTime = currentTime;
+            const settled = particles.every(p => p.elapsed >= p.delay + p.duration);
+            if (settled) { rotSpeedX += (0.0006 - rotSpeedX) * 0.02; rotSpeedY += (0.0005 - rotSpeedY) * 0.02; }
+            rotationX += rotSpeedX * deltaTime; rotationY += rotSpeedY * deltaTime;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach(particle => {
-                particle.update(deltaTime);
-                particle.draw();
-            });
+            particles.forEach(p => { p.update(deltaTime); p.draw(); });
             requestAnimationFrame(animateParticles);
         }
-
         animateParticles();
 
         function createHeart() {
-            const heart = document.createElement('div');
-            heart.classList.add('confetti');
-            heart.innerText = ['💖', '💗', '💓', '💕', '🐶'][Math.floor(Math.random() * 5)];
-            heart.style.left = Math.random() * 100 + "vw";
-            heart.style.animationDuration = (Math.random() * 2 + 3) + "s";
-            document.body.appendChild(heart);
-            setTimeout(() => heart.remove(), 5000);
+            const h = document.createElement('div'); h.classList.add('confetti');
+            h.innerText = ['💖', '💗', '💓', '💕', '🐶'][Math.floor(Math.random() * 5)];
+            h.style.left = Math.random() * 100 + "vw";
+            h.style.animationDuration = (Math.random() * 2 + 3) + "s";
+            document.body.appendChild(h); setTimeout(() => h.remove(), 5000);
         }
 
         function createHeartbeatMonitor() {
-            const container = document.createElement('div');
-            container.className = 'heartbeat-container';
-            const heartbeatCanvas = document.createElement('canvas');
-            heartbeatCanvas.id = 'heartbeatCanvas';
-            heartbeatCanvas.width = window.innerWidth;
-            heartbeatCanvas.height = 200;
-            const heartbeatText = document.createElement('div');
-            heartbeatText.className = 'heartbeat-text';
-            heartbeatText.innerHTML = '♥ 120 BPM';
-            container.appendChild(heartbeatCanvas);
-            document.body.appendChild(container);
-            document.body.appendChild(heartbeatText);
-            const ekgHeartPoints = [];
-            for (let t = 0; t < 2 * Math.PI; t += 0.02) {
-                const x = 16 * Math.pow(Math.sin(t), 3);
-                const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
-                ekgHeartPoints.push({ x, y });
+            const container = document.createElement('div'); container.className = 'heartbeat-container';
+            const hbCanvas = document.createElement('canvas'); hbCanvas.id = 'heartbeatCanvas';
+            hbCanvas.width = window.innerWidth; hbCanvas.height = 200;
+            const hbText = document.createElement('div'); hbText.className = 'heartbeat-text';
+            hbText.innerHTML = '♥ 120 BPM';
+            container.appendChild(hbCanvas); document.body.appendChild(container); document.body.appendChild(hbText);
+            const pts = []; for (let t = 0; t < 2 * Math.PI; t += 0.02) {
+                pts.push({ x: 16 * Math.pow(Math.sin(t), 3), y: -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)) });
             }
-            const hbCtx = heartbeatCanvas.getContext('2d');
-            let progress = 0;
-            let heartIndex = 0;
-            function drawHeartbeat() {
-                hbCtx.clearRect(0, 0, heartbeatCanvas.width, heartbeatCanvas.height);
-                const centerX = heartbeatCanvas.width / 2;
-                const centerY = heartbeatCanvas.height / 2 + 20;
-                const heartScale = 4;
-                hbCtx.strokeStyle = '#ff4d6d';
-                hbCtx.lineWidth = 3;
-                hbCtx.beginPath();
-                for (let i = 0; i < ekgHeartPoints.length; i++) {
-                    const point = ekgHeartPoints[i];
-                    const x = centerX + point.x * heartScale;
-                    const y = centerY + point.y * heartScale;
-                    const ekgVariation = Math.sin(i * 0.5 + progress) * 2;
-                    if (i === 0) hbCtx.moveTo(x, y + ekgVariation);
+            const hbc = hbCanvas.getContext('2d'); let prog = 0; let idx = 0;
+            function drawHb() {
+                hbc.clearRect(0, 0, hbCanvas.width, hbCanvas.height);
+                const cX = hbCanvas.width / 2; const cY = hbCanvas.height / 2 + 20;
+                hbc.strokeStyle = '#ff4d6d'; hbc.lineWidth = 3; hbc.beginPath();
+                for (let i = 0; i < pts.length; i++) {
+                    const x = cX + pts[i].x * 4; const y = cY + pts[i].y * 4;
+                    const v = Math.sin(i * 0.5 + prog) * 2;
+                    if (i === 0) hbc.moveTo(x, y + v);
                     else {
-                        if (i % 20 === 0) {
-                            hbCtx.lineTo(x - 3, y);
-                            hbCtx.lineTo(x, y - 15);
-                            hbCtx.lineTo(x + 3, y);
-                        } else if (i % 10 === 0) {
-                            hbCtx.lineTo(x - 2, y);
-                            hbCtx.lineTo(x, y - 8);
-                            hbCtx.lineTo(x + 2, y);
-                        } else hbCtx.lineTo(x, y + ekgVariation);
+                        if (i % 20 === 0) { hbc.lineTo(x - 3, y); hbc.lineTo(x, y - 15); hbc.lineTo(x + 3, y); }
+                        else hbc.lineTo(x, y + v);
                     }
                 }
-                hbCtx.closePath();
-                hbCtx.stroke();
-                hbCtx.shadowBlur = 15;
-                hbCtx.shadowColor = '#ff4d6d';
-                hbCtx.stroke();
-                hbCtx.shadowBlur = 0;
-                const currentPoint = ekgHeartPoints[heartIndex];
-                const spotX = centerX + currentPoint.x * heartScale;
-                const spotY = centerY + currentPoint.y * heartScale;
-                hbCtx.beginPath();
-                hbCtx.arc(spotX, spotY, 5, 0, Math.PI * 2);
-                hbCtx.fillStyle = '#ff1744';
-                hbCtx.shadowBlur = 20;
-                hbCtx.shadowColor = '#ff1744';
-                hbCtx.fill();
-                hbCtx.shadowBlur = 0;
-                progress += 0.05;
-                heartIndex = (heartIndex + 1) % ekgHeartPoints.length;
-                requestAnimationFrame(drawHeartbeat);
+                hbc.stroke(); hbc.shadowBlur = 15; hbc.shadowColor = '#ff4d6d'; hbc.stroke(); hbc.shadowBlur = 0;
+                const sp = pts[idx]; hbc.beginPath(); hbc.arc(cX + sp.x * 4, cY + sp.y * 4, 5, 0, Math.PI * 2);
+                hbc.fillStyle = '#ff1744'; hbc.fill(); prog += 0.05; idx = (idx + 1) % pts.length;
+                requestAnimationFrame(drawHb);
             }
-            drawHeartbeat();
+            drawHb();
         }
 
         function accepted() {
-            // Play Music
-            document.getElementById('viva-audio').play();
+            const audio = document.getElementById('viva-audio');
+            audio.volume = 0.25; // SET VOLUME TO 25%
+            audio.play();
+
+            // Create Music Control Icon
+            const mc = document.createElement('div');
+            mc.style.cssText = "position:fixed;top:20px;right:20px;z-index:100;background:rgba(255,255,255,0.5);backdrop-filter:blur(5px);padding:10px;border-radius:50%;cursor:pointer;font-size:20px;";
+            mc.innerHTML = '🎵';
+            mc.onclick = () => { if (audio.paused) { audio.play(); mc.style.opacity = '1'; } else { audio.pause(); mc.style.opacity = '0.5'; } };
+            document.body.appendChild(mc);
 
             const eventTitle = encodeURIComponent("Valentine's Dinner at Jean's");
             const eventDetails = encodeURIComponent("Menu: Pasta & Wine 🍝🍷\nEvening Plans: S'mores & relaxing! 🔥");
-            const calendarLink = `https://www.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=20260214T233000Z/20260215T030000Z&details=${eventDetails}&location=Jean's+Place`;
+            const cal = `https://www.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=20260214T233000Z/20260215T030000Z&details=${eventDetails}&location=Jean's+Place`;
             
             document.getElementById('valentineCard').innerHTML = `
-                <div style="font-size: clamp(40px, 12vw, 60px);">🍝🍷✨</div>
+                <div style="font-size: 60px;">🍝🍷✨</div>
                 <h1 style="color: #ff4d6d;">It's a Date, Halle!</h1>
                 <div class="love-text-after">I love you Halle ❤️</div>
-                <a href="${calendarLink}" target="_blank" class="calendar-btn">📅 Add Dinner to Calendar</a>
+                <a href="${cal}" target="_blank" class="calendar-btn">📅 Add Dinner to Calendar</a>
                 <div class="love-message">
                     <div class="message-to">To: Halle</div>
                     <div class="message-title">"Every day with you is my favorite adventure"</div>
-                    This means that life with you isn't just a routine, but a constant journey full of discovery and joy. It frames our relationship as an ongoing story where the best parts are the moments we share together.
+                    Being by your side is what makes every experience meaningful. Happy Valentine's Day.
                     <div class="message-from">From: Jean Cadet</div>
                 </div>
             `;
             document.body.style.backgroundColor = "#ffc1cf";
-            createHeartbeatMonitor();
-            setInterval(createHeart, 150);
+            createHeartbeatMonitor(); setInterval(createHeart, 150);
         }
 
         setInterval(() => {
-            const bh = document.createElement('div');
-            bh.classList.add('bg-heart');
-            bh.innerHTML = '❤️';
-            bh.style.left = Math.random() * 100 + 'vw';
-            bh.style.bottom = '-5vh';
-            bh.style.fontSize = (Math.random() * 15 + 10) + 'px';
-            document.body.appendChild(bh);
-            setTimeout(() => bh.remove(), 6000);
+            const b = document.createElement('div'); b.classList.add('bg-heart'); b.innerHTML = '❤️';
+            b.style.left = Math.random() * 100 + 'vw'; b.style.bottom = '-5vh';
+            document.body.appendChild(b); setTimeout(() => b.remove(), 6000);
         }, 500);
 
-        let lastTouchEnd = 0;
-        document.addEventListener('touchend', function (event) {
-            const now = (new Date()).getTime();
-            if (now - lastTouchEnd <= 300) event.preventDefault();
-            lastTouchEnd = now;
+        document.addEventListener('touchend', (e) => {
+            const now = Date.now(); if (now - lastTouchEnd <= 300) e.preventDefault(); lastTouchEnd = now;
         }, false);
+        let lastTouchEnd = 0;
     </script>
 </body>
 </html>
