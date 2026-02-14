@@ -67,6 +67,8 @@
             align-items: center;
             gap: 15px;
             flex-wrap: wrap;
+            position: relative;
+            min-height: 60px;
         }
 
         button {
@@ -92,8 +94,10 @@
         }
         
         #noBtn { 
-            background-color: #ffb3c1; 
+            background-color: #ff4d6d; 
             color: white;
+            position: absolute;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         }
 
         .confetti {
@@ -231,9 +235,9 @@
         <h1>Halle, will you be my Valentine?</h1>
         <canvas id="particleCanvas"></canvas>
         <div class="love-text" id="loveText">I love you Halle ❤️</div>
-        <div class="btn-group">
+        <div class="btn-group" id="btnGroup">
             <button id="yesBtn" onclick="accepted()">YES</button>
-            <button id="noBtn" onclick="denied()">NO</button>
+            <button id="noBtn" onmouseenter="runAway(event)" ontouchstart="runAwayTouch(event)">NO</button>
         </div>
     </div>
 
@@ -247,6 +251,7 @@
         let noClickCount = 0;
         const noBtn = document.getElementById('noBtn');
         const yesBtn = document.getElementById('yesBtn');
+        const btnGroup = document.getElementById('btnGroup');
         
         const errorMessages = [
             "Halle, error 404: 'No' not found.",
@@ -255,6 +260,46 @@
             "Critical Error: Clicking 'No' is physically impossible.",
             "Access Denied. Did you mean to click 'Yes'?"
         ];
+
+        // Make NO button run away from mouse
+        function runAway(event) {
+            const btnRect = noBtn.getBoundingClientRect();
+            const groupRect = btnGroup.getBoundingClientRect();
+            
+            // Calculate available space
+            const maxX = groupRect.width - btnRect.width;
+            const maxY = groupRect.height - btnRect.height;
+            
+            // Generate random position away from mouse
+            let newX = Math.random() * maxX;
+            let newY = Math.random() * maxY;
+            
+            // Make sure it's far enough from current position
+            const currentLeft = parseFloat(noBtn.style.left) || 0;
+            const currentTop = parseFloat(noBtn.style.top) || 0;
+            
+            // If too close, try again
+            if (Math.abs(newX - currentLeft) < 100) {
+                newX = currentLeft > maxX / 2 ? 0 : maxX;
+            }
+            if (Math.abs(newY - currentTop) < 50) {
+                newY = currentTop > maxY / 2 ? 0 : maxY;
+            }
+            
+            noBtn.style.left = newX + 'px';
+            noBtn.style.top = newY + 'px';
+            
+            // Grow YES button
+            let currentSize = parseFloat(window.getComputedStyle(yesBtn).fontSize);
+            yesBtn.style.fontSize = (currentSize + 5) + "px";
+            yesBtn.style.padding = (parseFloat(window.getComputedStyle(yesBtn).padding) + 4) + "px";
+        }
+
+        // For touch devices
+        function runAwayTouch(event) {
+            event.preventDefault();
+            runAway(event);
+        }
 
         // Particle Heart Animation
         const ctx = canvas.getContext('2d');
@@ -431,9 +476,6 @@
         function denied() {
             alert(errorMessages[noClickCount % errorMessages.length]);
             noBtn.innerText = "Invalid ❌";
-            let currentSize = parseFloat(window.getComputedStyle(yesBtn).fontSize);
-            yesBtn.style.fontSize = (currentSize + 10) + "px";
-            yesBtn.style.padding = (parseFloat(window.getComputedStyle(yesBtn).padding) + 8) + "px";
             noClickCount++;
         }
 
@@ -468,7 +510,6 @@
             // Animate heartbeat line
             const hbCtx = heartbeatCanvas.getContext('2d');
             let offset = 0;
-            let beatPhase = 0;
             
             function drawHeartbeat() {
                 hbCtx.clearRect(0, 0, heartbeatCanvas.width, heartbeatCanvas.height);
