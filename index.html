@@ -116,6 +116,12 @@
             color: #ff4d6d;
         }
 
+        /* Mathematical Heart Animation */
+        #heartCanvas {
+            margin: 20px auto;
+            display: block;
+        }
+
         /* Flower Animation Styles */
         .flower {
             position: absolute;
@@ -223,7 +229,7 @@
 
     <div class="card" id="valentineCard">
         <h1>Halle, will you be my Valentine?</h1>
-        <p>You're the spark to my circuits! ⚡</p>
+        <canvas id="heartCanvas" width="300" height="250"></canvas>
         <div class="btn-group">
             <button id="yesBtn" onclick="accepted()">YES</button>
             <button id="noBtn" onclick="denied()">NO</button>
@@ -242,6 +248,64 @@
             "Critical Error: Clicking 'No' is physically impossible.",
             "Access Denied. Did you mean to click 'Yes'?"
         ];
+
+        // Animated Mathematical Heart using sin function
+        const canvas = document.getElementById('heartCanvas');
+        const ctx = canvas.getContext('2d');
+        let t = 0;
+
+        function drawHeart() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.beginPath();
+            
+            // Heart shape using parametric equations with sin
+            for (let angle = 0; angle <= 2 * Math.PI; angle += 0.01) {
+                // Parametric heart equations
+                const x = 16 * Math.pow(Math.sin(angle), 3);
+                const y = -(13 * Math.cos(angle) - 5 * Math.cos(2 * angle) - 2 * Math.cos(3 * angle) - Math.cos(4 * angle));
+                
+                // Scale and center
+                const scaledX = x * 7 + canvas.width / 2;
+                const scaledY = y * 7 + canvas.height / 2 - 20;
+                
+                if (angle === 0) {
+                    ctx.moveTo(scaledX, scaledY);
+                } else {
+                    ctx.lineTo(scaledX, scaledY);
+                }
+            }
+            
+            ctx.closePath();
+            
+            // Animated gradient
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            const hue1 = (t * 2) % 360;
+            const hue2 = (t * 2 + 60) % 360;
+            gradient.addColorStop(0, `hsl(${330 + Math.sin(t) * 30}, 100%, 70%)`);
+            gradient.addColorStop(1, `hsl(${350 + Math.cos(t) * 20}, 100%, 60%)`);
+            
+            ctx.fillStyle = gradient;
+            ctx.fill();
+            
+            // Animated outline
+            ctx.strokeStyle = `rgba(255, 77, 109, ${0.8 + Math.sin(t * 3) * 0.2})`;
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            
+            // Pulsing effect
+            const scale = 1 + Math.sin(t * 2) * 0.05;
+            ctx.save();
+            ctx.translate(canvas.width / 2, canvas.height / 2 - 20);
+            ctx.scale(scale, scale);
+            ctx.translate(-canvas.width / 2, -(canvas.height / 2 - 20));
+            ctx.restore();
+            
+            t += 0.02;
+            requestAnimationFrame(drawHeart);
+        }
+
+        drawHeart();
 
         function denied() {
             alert(errorMessages[noClickCount % errorMessages.length]);
@@ -312,12 +376,11 @@
             document.getElementById('valentineCard').innerHTML = `
                 <div style="font-size: 60px;">🍝🍷✨</div>
                 <h1 style="color: #ff4d6d;">It's a Date, Halle!</h1>
-                <p>Can't wait to make you pasta and s'mores! ❤️</p>
                 <a href="${calendarLink}" target="_blank" class="calendar-btn">📅 Add Dinner to Calendar</a>
                 
                 <div class="love-message">
                     <div class="message-title">"Every day with you is my favorite adventure"</div>
-                    This means that life with you isn't just a routine, but a constant journey full of discovery and joy. It implies that no matter where we are or what we are doing—whether we're out on a trip or just relaxing at home—being by your side is what makes the experience meaningful. It frames our relationship as an ongoing story where the best parts are the moments we share together, making even the simplest days feel like a special destination.
+                    This means that life with you isn't just a routine, but a constant journey full of discovery and joy. It implies that no matter where we are or what we are doing, whether we're out on a trip or just relaxing at home, being by your side is what makes the experience meaningful. It frames our relationship as an ongoing story where the best parts are the moments we share together, making even the simplest days feel like a special destination.
                 </div>
                 
                 <div style="font-size: 12px; margin-top: 20px; color: #ffb3c1;">From Jean Cadet</div>
