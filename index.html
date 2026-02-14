@@ -120,6 +120,8 @@
         #heartCanvas {
             margin: 20px auto;
             display: block;
+            background-color: #fafafa;
+            border-radius: 10px;
         }
 
         /* Flower Animation Styles */
@@ -229,7 +231,7 @@
 
     <div class="card" id="valentineCard">
         <h1>Halle, will you be my Valentine?</h1>
-        <canvas id="heartCanvas" width="300" height="250"></canvas>
+        <canvas id="heartCanvas" width="400" height="350"></canvas>
         <div class="btn-group">
             <button id="yesBtn" onclick="accepted()">YES</button>
             <button id="noBtn" onclick="denied()">NO</button>
@@ -249,57 +251,127 @@
             "Access Denied. Did you mean to click 'Yes'?"
         ];
 
-        // Animated Mathematical Heart using sin function
+        // Animated Mathematical Heart with axes
         const canvas = document.getElementById('heartCanvas');
         const ctx = canvas.getContext('2d');
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const scale = 8;
         let t = 0;
+        let animationProgress = 0;
+
+        function drawGrid() {
+            ctx.strokeStyle = '#e0e0e0';
+            ctx.lineWidth = 0.5;
+            
+            // Vertical grid lines
+            for (let x = 0; x <= canvas.width; x += 20) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            
+            // Horizontal grid lines
+            for (let y = 0; y <= canvas.height; y += 20) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+        }
+
+        function drawAxes() {
+            ctx.strokeStyle = '#666';
+            ctx.lineWidth = 2;
+            
+            // X-axis
+            ctx.beginPath();
+            ctx.moveTo(0, centerY);
+            ctx.lineTo(canvas.width, centerY);
+            ctx.stroke();
+            
+            // Y-axis
+            ctx.beginPath();
+            ctx.moveTo(centerX, 0);
+            ctx.lineTo(centerX, canvas.height);
+            ctx.stroke();
+            
+            // Arrow for X-axis
+            ctx.beginPath();
+            ctx.moveTo(canvas.width - 10, centerY - 5);
+            ctx.lineTo(canvas.width, centerY);
+            ctx.lineTo(canvas.width - 10, centerY + 5);
+            ctx.stroke();
+            
+            // Arrow for Y-axis
+            ctx.beginPath();
+            ctx.moveTo(centerX - 5, 10);
+            ctx.lineTo(centerX, 0);
+            ctx.lineTo(centerX + 5, 10);
+            ctx.stroke();
+            
+            // Labels
+            ctx.fillStyle = '#666';
+            ctx.font = '14px Arial';
+            ctx.fillText('x', canvas.width - 20, centerY - 10);
+            ctx.fillText('y', centerX + 10, 20);
+        }
 
         function drawHeart() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            ctx.beginPath();
+            // Draw grid and axes
+            drawGrid();
+            drawAxes();
             
-            // Heart shape using parametric equations with sin
-            for (let angle = 0; angle <= 2 * Math.PI; angle += 0.01) {
-                // Parametric heart equations
+            // Draw the heart curve progressively
+            ctx.beginPath();
+            ctx.strokeStyle = `rgba(255, 77, 109, ${0.8 + Math.sin(t * 3) * 0.2})`;
+            ctx.lineWidth = 3;
+            
+            let drawn = false;
+            const maxAngle = animationProgress * 2 * Math.PI;
+            
+            for (let angle = 0; angle <= maxAngle; angle += 0.02) {
+                // Parametric heart equations using sin
                 const x = 16 * Math.pow(Math.sin(angle), 3);
                 const y = -(13 * Math.cos(angle) - 5 * Math.cos(2 * angle) - 2 * Math.cos(3 * angle) - Math.cos(4 * angle));
                 
-                // Scale and center
-                const scaledX = x * 7 + canvas.width / 2;
-                const scaledY = y * 7 + canvas.height / 2 - 20;
+                // Scale and translate to center
+                const canvasX = centerX + x * scale;
+                const canvasY = centerY + y * scale - 20;
                 
-                if (angle === 0) {
-                    ctx.moveTo(scaledX, scaledY);
+                if (!drawn) {
+                    ctx.moveTo(canvasX, canvasY);
+                    drawn = true;
                 } else {
-                    ctx.lineTo(scaledX, scaledY);
+                    ctx.lineTo(canvasX, canvasY);
                 }
             }
             
-            ctx.closePath();
-            
-            // Animated gradient
-            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-            const hue1 = (t * 2) % 360;
-            const hue2 = (t * 2 + 60) % 360;
-            gradient.addColorStop(0, `hsl(${330 + Math.sin(t) * 30}, 100%, 70%)`);
-            gradient.addColorStop(1, `hsl(${350 + Math.cos(t) * 20}, 100%, 60%)`);
-            
-            ctx.fillStyle = gradient;
-            ctx.fill();
-            
-            // Animated outline
-            ctx.strokeStyle = `rgba(255, 77, 109, ${0.8 + Math.sin(t * 3) * 0.2})`;
-            ctx.lineWidth = 3;
             ctx.stroke();
             
-            // Pulsing effect
-            const scale = 1 + Math.sin(t * 2) * 0.05;
-            ctx.save();
-            ctx.translate(canvas.width / 2, canvas.height / 2 - 20);
-            ctx.scale(scale, scale);
-            ctx.translate(-canvas.width / 2, -(canvas.height / 2 - 20));
-            ctx.restore();
+            // Draw points along the curve for visual effect
+            if (animationProgress >= 1) {
+                for (let angle = 0; angle <= 2 * Math.PI; angle += Math.PI / 12) {
+                    const x = 16 * Math.pow(Math.sin(angle), 3);
+                    const y = -(13 * Math.cos(angle) - 5 * Math.cos(2 * angle) - 2 * Math.cos(3 * angle) - Math.cos(4 * angle));
+                    
+                    const canvasX = centerX + x * scale;
+                    const canvasY = centerY + y * scale - 20;
+                    
+                    ctx.beginPath();
+                    ctx.arc(canvasX, canvasY, 3, 0, 2 * Math.PI);
+                    ctx.fillStyle = '#ff4d6d';
+                    ctx.fill();
+                }
+            }
+            
+            // Animate the drawing
+            if (animationProgress < 1) {
+                animationProgress += 0.01;
+            }
             
             t += 0.02;
             requestAnimationFrame(drawHeart);
