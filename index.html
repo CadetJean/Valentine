@@ -68,7 +68,7 @@
             gap: 15px;
             flex-wrap: wrap;
             position: relative;
-            min-height: 60px;
+            min-height: 100px;
         }
 
         button {
@@ -91,6 +91,8 @@
         #yesBtn { 
             background-color: #ff4d6d; 
             color: white;
+            position: relative;
+            z-index: 100;
         }
         
         #noBtn { 
@@ -98,6 +100,7 @@
             color: white;
             position: absolute;
             transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 50;
         }
 
         .confetti {
@@ -261,27 +264,45 @@
 
         // Make NO button run away from mouse
         function runAway(event) {
-            const btnRect = noBtn.getBoundingClientRect();
+            const yesBtnRect = yesBtn.getBoundingClientRect();
+            const noBtnRect = noBtn.getBoundingClientRect();
             const groupRect = btnGroup.getBoundingClientRect();
             
             // Calculate available space
-            const maxX = groupRect.width - btnRect.width;
-            const maxY = groupRect.height - btnRect.height;
+            const maxX = groupRect.width - noBtnRect.width;
+            const maxY = groupRect.height - noBtnRect.height;
             
-            // Generate random position away from mouse
-            let newX = Math.random() * maxX;
-            let newY = Math.random() * maxY;
+            // Calculate YES button's position relative to the group
+            const yesRelativeLeft = yesBtnRect.left - groupRect.left;
+            const yesRelativeTop = yesBtnRect.top - groupRect.top;
             
-            // Make sure it's far enough from current position
-            const currentLeft = parseFloat(noBtn.style.left) || 0;
-            const currentTop = parseFloat(noBtn.style.top) || 0;
+            let attempts = 0;
+            let newX, newY;
+            let tooClose = true;
             
-            // If too close, try again
-            if (Math.abs(newX - currentLeft) < 100) {
-                newX = currentLeft > maxX / 2 ? 0 : maxX;
+            // Keep trying until we find a position that doesn't overlap with YES button
+            while (tooClose && attempts < 20) {
+                newX = Math.random() * maxX;
+                newY = Math.random() * maxY;
+                
+                // Check if the new position would overlap with YES button
+                const horizontalOverlap = !(newX > yesRelativeLeft + yesBtnRect.width + 10 || 
+                                           newX + noBtnRect.width < yesRelativeLeft - 10);
+                const verticalOverlap = !(newY > yesRelativeTop + yesBtnRect.height + 10 || 
+                                         newY + noBtnRect.height < yesRelativeTop - 10);
+                
+                tooClose = horizontalOverlap && verticalOverlap;
+                attempts++;
             }
-            if (Math.abs(newY - currentTop) < 50) {
-                newY = currentTop > maxY / 2 ? 0 : maxY;
+            
+            // If we couldn't find a good spot, place it far away from YES
+            if (tooClose) {
+                if (yesRelativeLeft < groupRect.width / 2) {
+                    newX = Math.max(yesRelativeLeft + yesBtnRect.width + 50, maxX - 50);
+                } else {
+                    newX = Math.max(0, yesRelativeLeft - noBtnRect.width - 50);
+                }
+                newY = Math.random() * maxY;
             }
             
             noBtn.style.left = newX + 'px';
